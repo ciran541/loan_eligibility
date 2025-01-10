@@ -330,22 +330,30 @@ class LoanCalculator {
     updateResults(results) {
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
         
-        // Calculate loan percentage
-        const loanPercentage = (results.loanAmount / results.propertyValue);
+        // Fixed percentages
+        const MIN_CASH_PERCENTAGE = 0.05; // 5%
+        const MAX_LOAN_PERCENTAGE = 0.75; // 75%
+        
+        // Calculate maximum bank loan based on property value
+        const maxBankLoan = results.propertyValue * MAX_LOAN_PERCENTAGE;
+        
+        // Use the lower of loan eligibility or maximum bank loan for final calculations
+        const actualLoanAmount = Math.min(results.loanAmount, maxBankLoan);
         
         // Calculate downpayments
-        const minCashDownpayment = results.propertyValue * 0.05; // Fixed 5%
+        const minCashDownpayment = results.propertyValue * MIN_CASH_PERCENTAGE;
+        const balanceDownpayment = results.propertyValue - (actualLoanAmount + minCashDownpayment);
         
-        // Calculate balance downpayment based on loan percentage
-        const balanceDownpayment = results.propertyValue * (1 - loanPercentage - 0.05);
-        
+        // Update display
         document.getElementById('weightedAge').textContent = `${results.weightedAge} years`;
         document.getElementById('loanTenure').textContent = `${results.loanTenure} years`;
         document.getElementById('targetPrice').textContent = formatCurrency(results.propertyValue);
         document.getElementById('loanEligibility').textContent = formatCurrency(results.loanAmount);
+        document.getElementById('maxBankLoan').textContent = formatCurrency(maxBankLoan);
         document.getElementById('monthlyInstallment').textContent = formatCurrency(results.monthlyInstallment);
         document.getElementById('minCashDownpayment').textContent = formatCurrency(minCashDownpayment);
         document.getElementById('balanceDownpayment').textContent = formatCurrency(balanceDownpayment);
+        
     }
 
     updateConditionalResults(pledgeFund, showFund) {
