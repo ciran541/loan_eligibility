@@ -312,9 +312,10 @@ class LoanCalculator {
                 // Calculate monthly shortfall
                 const shortfallPayment = monthlyPayment * (shortfallLoanAmount / loanAmount);
                 
-                // Calculate pledge fund and show fund
-                const pledgeFund = (shortfallPayment * 48) / 0.55;
-                const showFund = pledgeFund * 0.30;
+                // Calculate pledge fund based on property type
+                const pledgeDivisor = propertyType === 'hdb' ? 0.3 : 0.55;
+                const pledgeFund = (shortfallPayment * 48) / pledgeDivisor;
+                const showFund = pledgeFund / 0.3; // Show fund calculation remains the same for both types
     
                 this.updateConditionalResults(pledgeFund, showFund);
             } else {
