@@ -6,7 +6,7 @@ class LoanCalculator {
         this.conditionalResults = document.getElementById('conditionalResults');
         
         // Constants for calculations
-        this.STRESS_TEST_RATE = 0.042; // 4.2% annual interest rate
+        this.STRESS_TEST_RATE = 0.042; // 4.8% annual interest rate
         this.MONTHLY_INSTALLMENT_RATE = 0.025; // 2.5% annual interest rate for monthly installment
         this.MAX_AGE_LIMIT = 65;
         this.MSR_LIMIT = 0.30; // 30% for MSR
@@ -251,10 +251,6 @@ class LoanCalculator {
         return Math.abs(pmt) * (1 - Math.pow(1 + monthlyRate, -nper)) / monthlyRate;
     }
 
-    calculatePMT(rate, nper, pv) {
-        return pv * (rate * Math.pow(1 + rate, nper)) / (Math.pow(1 + rate, nper) - 1);
-    }
-
     calculateLoanTenure() {
         const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
         const weightedAge = this.calculateWeightedAverageAge();
@@ -281,14 +277,16 @@ class LoanCalculator {
             const monthlyPayment = (propertyType === 'hdb') ? 
                 Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
     
-            // Calculate loan amount using stress test rate (4.8%)
-            const monthlyRate = this.STRESS_TEST_RATE / 12;
+            // Calculate loan amount using stress test rate (4.2%)
+            const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
             const monthsTotal = tenure * 12;
-            const loanAmount = this.calculatePV(monthlyRate, monthsTotal, monthlyPayment);
+            const loanAmount = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
     
             // Calculate actual monthly installment using 2.5% rate
-            const installmentMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyInstallment = this.calculatePMT(installmentMonthlyRate, monthsTotal, -loanAmount);
+            const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
+            const actualMonthlyPayment = Math.abs(loanAmount * actualMonthlyRate * 
+                Math.pow(1 + actualMonthlyRate, monthsTotal) / 
+                (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1));
     
             // Calculate loan percentage (capped at 75%)
             const loanPercentage = Math.min((loanAmount / propertyValue) * 100, 75);
@@ -299,7 +297,7 @@ class LoanCalculator {
                 loanTenure: tenure,
                 propertyValue: propertyValue,
                 loanAmount: loanAmount,
-                monthlyInstallment: actualMonthlyInstallment,
+                monthlyInstallment: actualMonthlyPayment,
                 loanPercentage: loanPercentage
             });
     
@@ -308,10 +306,9 @@ class LoanCalculator {
                 const cappedLoanAmount = propertyValue * 0.75;
                 const shortfallLoanAmount = cappedLoanAmount - loanAmount;
                 
-                // Calculate monthly shortfall using 2.5% rate
-                const shortfallPayment = actualMonthlyInstallment * (shortfallLoanAmount / loanAmount);
+                // Calculate monthly shortfall using stress test rate (4.2%)
+                const shortfallPayment = monthlyPayment * (shortfallLoanAmount / loanAmount);
                 
-                // Calculate pledge fund based on property type
                 const pledgeDivisor = propertyType === 'hdb' ? 0.3 : 0.55;
                 const pledgeFund = (shortfallPayment * 48) / pledgeDivisor;
                 const showFund = pledgeFund / 0.3;
@@ -325,6 +322,7 @@ class LoanCalculator {
             console.error('Error calculating loan eligibility:', error);
         }
     }
+
     
     updateResults(results) {
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
