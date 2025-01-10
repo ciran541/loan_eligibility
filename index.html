@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Eligibility Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-wrapper">
+            <!-- Left Column: Form Fields -->
+            <div class="form-container">
+              
+                <form id="loanCalculatorForm">
+                    <!-- Property Details Section -->
+                    <section class="form-section" id="propertyDetails">
+                        <h2>Property Details</h2>
+                        <div class="form-group">
+                            <label for="propertyValue">Property Valuation (SGD)</label>
+                            <input type="number" id="propertyValue" name="propertyValue" 
+                                   min="100000" required
+                                   placeholder="Enter property value">
+                            <span class="error-message" id="propertyValueError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Property Type</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="propertyType" value="private" checked required>
+                                    Private Property
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="propertyType" value="hdb">
+                                    HDB
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Number of Borrowers</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="borrowerCount" value="single" checked required>
+                                    Single
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="borrowerCount" value="joint">
+                                    Joint
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Borrower 1 Details Section -->
+                    <section class="form-section" id="borrower1Details">
+                        <h2>Borrower 1 Details</h2>
+                        <div class="form-group">
+                            <label for="borrower1Age">Age</label>
+                            <input type="number" id="borrower1Age" name="borrower1Age" 
+                                   min="18" max="65" required
+                                   placeholder="Enter age">
+                            <span class="error-message" id="borrower1AgeError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Employment Status</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="borrower1EmploymentStatus" value="employed" checked required>
+                                    Employed
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="borrower1EmploymentStatus" value="selfEmployed">
+                                    Self-Employed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Separate basic salary field -->
+                        <div class="form-group" id="borrower1BasicSalaryGroup">
+                            <label for="borrower1BasicSalary">Basic Monthly Salary (SGD)</label>
+                            <input type="number" id="borrower1BasicSalary" name="borrower1BasicSalary" 
+                                   min="0" placeholder="Enter basic salary">
+                            <span class="error-message" id="borrower1BasicSalaryError"></span>
+                        </div>
+
+                        <!-- Separate NOA field -->
+                        <div class="form-group" id="borrower1NoaGroup">
+                            <label for="borrower1NOA">Annual NOA Income (SGD)</label>
+                            <input type="number" id="borrower1NOA" name="borrower1NOA" 
+                                   min="0" placeholder="Enter NOA income">
+                            <span class="error-message" id="borrower1NOAError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="borrower1Commitments">Monthly Financial Commitments (SGD)</label>
+                            <input type="number" id="borrower1Commitments" name="borrower1Commitments" 
+                                   min="0" required
+                                   placeholder="Enter monthly commitments">
+                            <span class="error-message" id="borrower1CommitmentsError"></span>
+                        </div>
+                    </section>
+
+                    <!-- Borrower 2 Details Section (Initially Hidden) -->
+                    <section class="form-section hidden" id="borrower2Details">
+                        <h2>Borrower 2 Details</h2>
+                        <div class="form-group">
+                            <label for="borrower2Age">Age</label>
+                            <input type="number" id="borrower2Age" name="borrower2Age" 
+                                   min="18" max="65"
+                                   placeholder="Enter age">
+                            <span class="error-message" id="borrower2AgeError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Employment Status</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="borrower2EmploymentStatus" value="employed" checked>
+                                    Employed
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="borrower2EmploymentStatus" value="selfEmployed">
+                                    Self-Employed
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Separate basic salary field -->
+                        <div class="form-group" id="borrower2BasicSalaryGroup">
+                            <label for="borrower2BasicSalary">Basic Monthly Salary (SGD)</label>
+                            <input type="number" id="borrower2BasicSalary" name="borrower2BasicSalary" 
+                                   min="0" placeholder="Enter basic salary">
+                            <span class="error-message" id="borrower2BasicSalaryError"></span>
+                        </div>
+
+                        <!-- Separate NOA field -->
+                        <div class="form-group" id="borrower2NoaGroup">
+                            <label for="borrower2NOA">Annual NOA Income (SGD)</label>
+                            <input type="number" id="borrower2NOA" name="borrower2NOA" 
+                                   min="0" placeholder="Enter NOA income">
+                            <span class="error-message" id="borrower2NOAError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="borrower2Commitments">Monthly Financial Commitments (SGD)</label>
+                            <input type="number" id="borrower2Commitments" name="borrower2Commitments" 
+                                   min="0" placeholder="Enter monthly commitments">
+                            <span class="error-message" id="borrower2CommitmentsError"></span>
+                        </div>
+                    </section>
+                </form>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="results-container" id="resultsContainer">
+                <h2>Loan Eligibility Results</h2>
+                <div class="results-content">
+                    <div class="result-item">
+                        <label>Income Weighted Average Age:</label>
+                        <span id="weightedAge">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Loan Tenure:</label>
+                        <span id="loanTenure">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Target Property Price:</label>
+                        <span id="targetPrice">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Estimated Loan Eligibility:</label>
+                        <span id="loanEligibility">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Monthly Installment:</label>
+                        <span id="monthlyInstallment">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Minimum Cash Downpayment:</label>
+                        <span id="minCashDownpayment">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Balance Cash/CPF Downpayment:</label>
+                        <span id="balanceDownpayment">-</span>
+                    </div>
+                    <!-- Conditional Results -->
+                    <div class="conditional-results hidden" id="conditionalResults">
+                        <div class="result-item">
+                            <label>Pledge Fund:</label>
+                            <span id="pledgeFund">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Show Fund:</label>
+                            <span id="showFund">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="calculator.js"></script>
+</body>
+</html>
