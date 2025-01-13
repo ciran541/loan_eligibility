@@ -5,22 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Eligibility Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="calculator-wrapper">
             <!-- Left Column: Form Fields -->
             <div class="form-container">
-              
                 <form id="loanCalculatorForm">
                     <!-- Property Details Section -->
                     <section class="form-section" id="propertyDetails">
                         <h2>Property Details</h2>
                         <div class="form-group">
                             <label for="propertyValue">Property Valuation (SGD)</label>
-                            <input type="number" id="propertyValue" name="propertyValue" 
-                                   min="100000" required
-                                   placeholder="Enter property value">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <input type="number" id="propertyValue" name="propertyValue" 
+                                       min="100000" required
+                                       placeholder="Enter property value" value="5000000">
+                            </div>
                             <span class="error-message" id="propertyValueError"></span>
                         </div>
 
@@ -29,11 +34,11 @@
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="propertyType" value="private" checked required>
-                                    Private Property
+                                    <span class="radio-text">Private Property</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="propertyType" value="hdb">
-                                    HDB
+                                    <span class="radio-text">HDB</span>
                                 </label>
                             </div>
                         </div>
@@ -43,11 +48,11 @@
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="borrowerCount" value="single" checked required>
-                                    Single
+                                    <span class="radio-text">Single</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="borrowerCount" value="joint">
-                                    Joint
+                                    <span class="radio-text">Joint</span>
                                 </label>
                             </div>
                         </div>
@@ -58,9 +63,14 @@
                         <h2>Borrower 1 Details</h2>
                         <div class="form-group">
                             <label for="borrower1Age">Age</label>
-                            <input type="number" id="borrower1Age" name="borrower1Age" 
-                                   min="18" max="65" required
-                                   placeholder="Enter age">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <input type="number" id="borrower1Age" name="borrower1Age" 
+                                       min="21" max="65" required
+                                       placeholder="Enter age" value="30">
+                            </div>
                             <span class="error-message" id="borrower1AgeError"></span>
                         </div>
 
@@ -69,36 +79,51 @@
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="borrower1EmploymentStatus" value="employed" checked required>
-                                    Employed
+                                    <span class="radio-text">Employed</span>
+                                    <span class="helper-text">Full-time employment</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="borrower1EmploymentStatus" value="selfEmployed">
-                                    Self-Employed
+                                    <span class="radio-text">Self-Employed</span>
+                                    <span class="helper-text">Business owner or freelancer</span>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Separate basic salary field -->
                         <div class="form-group" id="borrower1BasicSalaryGroup">
                             <label for="borrower1BasicSalary">Basic Monthly Salary (SGD)</label>
-                            <input type="number" id="borrower1BasicSalary" name="borrower1BasicSalary" 
-                                   min="0" placeholder="Enter basic salary">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <input type="number" id="borrower1BasicSalary" name="borrower1BasicSalary" 
+                                       min="0" placeholder="Enter basic salary" value="3000">
+                            </div>
                             <span class="error-message" id="borrower1BasicSalaryError"></span>
                         </div>
 
-                        <!-- Separate NOA field -->
                         <div class="form-group" id="borrower1NoaGroup">
                             <label for="borrower1NOA">Annual NOA Income (SGD)</label>
-                            <input type="number" id="borrower1NOA" name="borrower1NOA" 
-                                   min="0" placeholder="Enter NOA income">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <input type="number" id="borrower1NOA" name="borrower1NOA" 
+                                       min="0" placeholder="Enter NOA income" value="10000">
+                            </div>
                             <span class="error-message" id="borrower1NOAError"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="borrower1Commitments">Monthly Financial Commitments (SGD)</label>
-                            <input type="number" id="borrower1Commitments" name="borrower1Commitments" 
-                                   min="0" required
-                                   placeholder="Enter monthly commitments">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <input type="number" id="borrower1Commitments" name="borrower1Commitments" 
+                                       min="0" required
+                                       placeholder="Enter monthly commitments" value="500">
+                            </div>
                             <span class="error-message" id="borrower1CommitmentsError"></span>
                         </div>
                     </section>
@@ -108,9 +133,14 @@
                         <h2>Borrower 2 Details</h2>
                         <div class="form-group">
                             <label for="borrower2Age">Age</label>
-                            <input type="number" id="borrower2Age" name="borrower2Age" 
-                                   min="18" max="65"
-                                   placeholder="Enter age">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <input type="number" id="borrower2Age" name="borrower2Age" 
+                                       min="18" max="65"
+                                       placeholder="Enter age">
+                            </div>
                             <span class="error-message" id="borrower2AgeError"></span>
                         </div>
 
@@ -119,87 +149,167 @@
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="borrower2EmploymentStatus" value="employed" checked>
-                                    Employed
+                                    <span class="radio-text">Employed</span>
+                                    <span class="helper-text">Full-time employment</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="borrower2EmploymentStatus" value="selfEmployed">
-                                    Self-Employed
+                                    <span class="radio-text">Self-Employed</span>
+                                    <span class="helper-text">Business owner or freelancer</span>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Separate basic salary field -->
                         <div class="form-group" id="borrower2BasicSalaryGroup">
                             <label for="borrower2BasicSalary">Basic Monthly Salary (SGD)</label>
-                            <input type="number" id="borrower2BasicSalary" name="borrower2BasicSalary" 
-                                   min="0" placeholder="Enter basic salary">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <input type="number" id="borrower2BasicSalary" name="borrower2BasicSalary" 
+                                       min="0" placeholder="Enter basic salary">
+                            </div>
                             <span class="error-message" id="borrower2BasicSalaryError"></span>
                         </div>
 
-                        <!-- Separate NOA field -->
                         <div class="form-group" id="borrower2NoaGroup">
                             <label for="borrower2NOA">Annual NOA Income (SGD)</label>
-                            <input type="number" id="borrower2NOA" name="borrower2NOA" 
-                                   min="0" placeholder="Enter NOA income">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <input type="number" id="borrower2NOA" name="borrower2NOA" 
+                                       min="0" placeholder="Enter NOA income">
+                            </div>
                             <span class="error-message" id="borrower2NOAError"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="borrower2Commitments">Monthly Financial Commitments (SGD)</label>
-                            <input type="number" id="borrower2Commitments" name="borrower2Commitments" 
-                                   min="0" placeholder="Enter monthly commitments">
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <input type="number" id="borrower2Commitments" name="borrower2Commitments" 
+                                       min="0" placeholder="Enter monthly commitments">
+                            </div>
                             <span class="error-message" id="borrower2CommitmentsError"></span>
                         </div>
                     </section>
                 </form>
             </div>
 
-            <!-- Right Column: Results -->
-            <div class="results-container" id="resultsContainer">
-                <h2>Loan Eligibility Results</h2>
-                <div class="results-content">
-                    <div class="result-item">
-                        <label>Income Weighted Average Age:</label>
-                        <span id="weightedAge">-</span>
+            <!-- Right Column: Results (Updated with dual results) -->
+            <div class="results-wrapper">
+                <!-- Standard Results (75% LTV) -->
+                <div class="results-container" id="standardResults">
+                    <div class="results-header">
+                        <h2>Standard Loan Package (75% LTV)</h2>
                     </div>
-                    <div class="result-item">
-                        <label>Loan Tenure:</label>
-                        <span id="loanTenure">-</span>
+                    <div class="payment-structure">
+                        <h3>Payment Structure</h3>
+                        <ul class="payment-rules">
+                            <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
+                            <li>Tenor is capped at age <span class="highlight-text">65</span> and cannot exceed <span class="highlight-text property-tenure">30</span> years</li>
+                            <li>Min <span class="highlight-text">5%</span> cash downpayment</li>
+                        </ul>
                     </div>
-                    <div class="result-item">
-                        <label>Target Property Price:</label>
-                        <span id="targetPrice">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Estimated Loan Eligibility:</label>
-                        <span id="loanEligibility">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Monthly Installment:</label>
-                        <span id="monthlyInstallment">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Maximum Bank Loan (75% cap):</label>
-                        <span id="maxBankLoan">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Minimum Cash Downpayment:</label>
-                        <span id="minCashDownpayment">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Balance Cash/CPF Downpayment:</label>
-                        <span id="balanceDownpayment">-</span>
-                    </div>
-                    <!-- Conditional Results -->
-                    <div class="conditional-results hidden" id="conditionalResults">
+                    <div class="results-content">
                         <div class="result-item">
-                            <label>Pledge Fund:</label>
-                            <span id="pledgeFund">-</span>
+                            <label>Income Weighted Average Age:</label>
+                            <span id="weightedAge">-</span>
                         </div>
                         <div class="result-item">
-                            <label>Show Fund:</label>
-                            <span id="showFund">-</span>
+                            <label>Loan Tenure:</label>
+                            <span id="loanTenure">-</span>
                         </div>
+                        <div class="result-item">
+                            <label>Target Property Price:</label>
+                            <span id="targetPrice">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Estimated Loan Eligibility:</label>
+                            <span id="loanEligibility">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Monthly Installment:</label>
+                            <span id="monthlyInstallment">-</span>
+                            <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Maximum Bank Loan (75% cap):</label>
+                            <span id="maxBankLoan">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Minimum Cash Downpayment:</label>
+                            <span id="minCashDownpayment">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Balance Cash/CPF Downpayment:</label>
+                            <span id="balanceDownpayment">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative Results (55% LTV) -->
+                <div class="results-container" id="alternativeResults">
+                    <div class="results-header">
+                        <h2>Alternative Loan Package (55% LTV)</h2>
+                    </div>
+                    <div class="payment-structure">
+                        <h3>Payment Structure</h3>
+                        <ul class="payment-rules">
+                            <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
+                            <li>Tenor is capped at age <span class="highlight-text">75</span> and cannot exceed <span class="highlight-text alt-property-tenure">35</span> years</li>
+                            <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
+                        </ul>
+                    </div>
+                    <div class="results-content">
+                        <div class="result-item">
+                            <label>Income Weighted Average Age:</label>
+                            <span id="alt-weightedAge">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Loan Tenure:</label>
+                            <span id="alt-loanTenure">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Target Property Price:</label>
+                            <span id="alt-targetPrice">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Estimated Loan Eligibility:</label>
+                            <span id="alt-loanEligibility">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Monthly Installment:</label>
+                            <span id="alt-monthlyInstallment">-</span>
+                            <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Maximum Bank Loan (55% cap):</label>
+                            <span id="alt-maxBankLoan">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Minimum Cash Downpayment:</label>
+                            <span id="alt-minCashDownpayment">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Balance Cash/CPF Downpayment:</label>
+                            <span id="alt-balanceDownpayment">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conditional Results (Unchanged) -->
+                <div class="conditional-results hidden" id="conditionalResults">
+                    <div class="result-item">
+                        <label>Pledge Fund:</label>
+                        <span id="pledgeFund">-</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Show Fund:</label>
+                        <span id="showFund">-</span>
                     </div>
                 </div>
             </div>
