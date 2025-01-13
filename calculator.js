@@ -346,7 +346,7 @@ class LoanCalculator {
             const totalCommitments = this.calculateTotalCommitments();
             const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
             const tenure = this.calculateLoanTenureWithParams(params);
-
+    
             // Calculate TDSR and MSR available
             const tdsrAvailable = Math.max((totalIncome * this.TDSR_LIMIT) - totalCommitments, 0);
             const msrAvailable = totalIncome * this.MSR_LIMIT;
@@ -354,25 +354,45 @@ class LoanCalculator {
             // Determine monthly payment capacity
             const monthlyPayment = (propertyType === 'hdb') ? 
                 Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
-
+    
             // Calculate loan amount using stress test rate
             const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
             const monthsTotal = tenure * 12;
             const loanAmount = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
-
+    
             // Calculate actual monthly installment
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
             const actualMonthlyPayment = Math.abs(loanAmount * actualMonthlyRate * 
                 Math.pow(1 + actualMonthlyRate, monthsTotal) / 
                 (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1));
-
+    
+            // Calculate loan percentage
+            const loanPercentage = Math.min((loanAmount / propertyValue) * 100, params.MAX_LOAN_PERCENTAGE * 100);
+    
+            // Calculate pledge funds if loan percentage < max loan percentage
+            let pledgeFundData = null;
+            if (loanPercentage < (params.MAX_LOAN_PERCENTAGE * 100)) {
+                const cappedLoanAmount = propertyValue * params.MAX_LOAN_PERCENTAGE;
+                const shortfallLoanAmount = cappedLoanAmount - loanAmount;
+                
+                // Calculate monthly shortfall using stress test rate
+                const shortfallPayment = monthlyPayment * (shortfallLoanAmount / loanAmount);
+                
+                const pledgeDivisor = propertyType === 'hdb' ? 0.3 : 0.55;
+                const pledgeFund = (shortfallPayment * 48) / pledgeDivisor;
+                const showFund = pledgeFund / 0.3;
+    
+                pledgeFundData = { pledgeFund, showFund };
+            }
+    
             return {
                 weightedAge: this.calculateWeightedAverageAge(),
                 loanTenure: tenure,
                 propertyValue: propertyValue,
                 loanAmount: loanAmount,
                 monthlyInstallment: actualMonthlyPayment,
-                maxLoanPercentage: params.MAX_LOAN_PERCENTAGE
+                maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
+                pledgeFundData: pledgeFundData
             };
         } catch (error) {
             console.error('Error calculating results:', error);
@@ -406,11 +426,11 @@ class LoanCalculator {
         // Use the lower of loan eligibility or maximum bank loan
         const actualLoanAmount = Math.min(results.loanAmount, maxBankLoan);
         
-        // Calculate downpayments using parameter-specific minimum cash percentage
+        // Calculate downpayments
         const minCashDownpayment = results.propertyValue * params.MIN_CASH_PERCENTAGE;
         const balanceDownpayment = results.propertyValue - (actualLoanAmount + minCashDownpayment);
         
-        // Update display
+        // Update main results
         document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
@@ -419,12 +439,15 @@ class LoanCalculator {
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
-
-        // Update package details
-        if (type === 'standard') {
-            this.updatePackageDetails(document.querySelector('.property-tenure'), 'standard');
+    
+        // Update conditional results (pledge and show funds)
+        const conditionalResultsElement = document.getElementById(`${prefix}conditionalResults`);
+        if (results.pledgeFundData) {
+            document.getElementById(`${prefix}pledgeFund`).textContent = formatCurrency(results.pledgeFundData.pledgeFund);
+            document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
+            conditionalResultsElement.classList.remove('hidden');
         } else {
-            this.updatePackageDetails(document.querySelector('.alt-property-tenure'), 'alternative');
+            conditionalResultsElement.classList.add('hidden');
         }
     }
 
