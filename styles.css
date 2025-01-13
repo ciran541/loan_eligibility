@@ -33,7 +33,6 @@ body {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    
 }
 
 .calculator-wrapper {
@@ -51,7 +50,6 @@ body {
 
 .form-section {
     margin-bottom: 2.5rem;
-    
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -200,6 +198,8 @@ input.error + .error-message {
 .results-container {
     background-color: var(--results-background);
     padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Results Header and Package Details */
@@ -319,6 +319,8 @@ input.error + .error-message {
         width: 750px;
         position: sticky;
         top: 2rem;
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
     }
 }
 
@@ -330,6 +332,25 @@ input.error + .error-message {
     .package-details {
         flex-direction: column;
     }
+}
+
+/* Custom scrollbar for results wrapper */
+.results-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+
+.results-wrapper::-webkit-scrollbar-track {
+    background: var(--input-bg);
+    border-radius: 4px;
+}
+
+.results-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.results-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
 }
 
 /* Utility Classes */
