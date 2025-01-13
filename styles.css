@@ -143,6 +143,7 @@ input[type="text"]:focus {
     align-items: center;
     gap: 0.75rem;
     font-size: 14px;
+    color: #6b7280;
 }
 
 .radio-text::before {
