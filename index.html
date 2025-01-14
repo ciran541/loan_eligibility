@@ -6,6 +6,7 @@
     <title>Loan Eligibility Calculator</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -210,6 +211,13 @@
                 <li>Min <span class="highlight-text">5%</span> cash downpayment</li>
             </ul>
         </div>
+        <div class="chart-section">
+            <canvas id="standardLoanChart"></canvas>
+            <div class="chart-labels">
+                <span class="chart-label loan">Loan Amount</span>
+                <span class="chart-label remaining">Remaining</span>
+            </div>
+        </div>
         <div class="results-content">
             <div class="result-item">
                 <label>Target Property Price:</label>
@@ -270,6 +278,13 @@
                 <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
             </ul>
         </div>
+<div class="chart-section">
+    <canvas id="alternativeLoanChart"></canvas>
+    <div class="chart-labels">
+        <span class="chart-label loan">Loan Amount</span>
+        <span class="chart-label remaining">Remaining</span>
+    </div>
+</div>
         <div class="results-content">
             <div class="result-item">
                 <label>Target Property Price:</label>

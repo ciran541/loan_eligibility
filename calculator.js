@@ -24,6 +24,10 @@ class LoanCalculator {
             MIN_CASH_PERCENTAGE: 0.10
         };
 
+        // Initialize chart instances
+    this.standardChart = this.initializeChart('standardLoanChart');
+    this.alternativeChart = this.initializeChart('alternativeLoanChart');
+
         // Common constants for calculations
         this.STRESS_TEST_RATE = 0.042; // 4.2% annual interest rate
         this.MONTHLY_INSTALLMENT_RATE = 0.025; // 2.5% annual interest rate for monthly installment
@@ -415,6 +419,47 @@ class LoanCalculator {
         }
     }
 
+    initializeChart(canvasId) {
+        return new Chart(document.getElementById(canvasId), {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: [
+                        getComputedStyle(document.documentElement)
+                            .getPropertyValue('--highlight-color'),
+                        '#e5e7eb'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    updateChart(chart, loanPercentage, maxPercentage) {
+        const actualPercentage = Math.min(loanPercentage, maxPercentage);
+        const remaining = maxPercentage - actualPercentage;
+        
+        chart.data.datasets[0].data = [actualPercentage, remaining];
+        chart.update();
+    }
+
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
@@ -439,6 +484,11 @@ class LoanCalculator {
         
         // Calculate balance downpayment percentage
         const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - loanEligibilityPercentage;
+        
+        // Update chart
+        const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
+        const maxPercentage = params.MAX_LOAN_PERCENTAGE * 100;
+        this.updateChart(chart, loanEligibilityPercentage, maxPercentage);
         
         // Update basic results
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
@@ -470,6 +520,8 @@ class LoanCalculator {
             conditionalResults.classList.add('hidden');
         }
     }
+
+    
     updatePropertyTenure(propertyType) {
         // Update both standard and alternative tenures
         const propertyTenureElements = document.querySelectorAll('.property-tenure, .alt-property-tenure');
