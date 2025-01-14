@@ -418,39 +418,58 @@ class LoanCalculator {
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
+        const formatPercentage = (number) => `${number.toFixed(2)}%`;
         const params = type === 'standard' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS;
         
         // Calculate maximum bank loan based on property value
-        const maxBankLoan = results.propertyValue * results.maxLoanPercentage;
+        const maxBankLoan = results.propertyValue * params.MAX_LOAN_PERCENTAGE;
         
         // Use the lower of loan eligibility or maximum bank loan
         const actualLoanAmount = Math.min(results.loanAmount, maxBankLoan);
+        
+        // Calculate loan eligibility percentage (capped at max percentage)
+        const loanEligibilityPercentage = Math.min(
+            (actualLoanAmount / results.propertyValue) * 100,
+            params.MAX_LOAN_PERCENTAGE * 100
+        );
         
         // Calculate downpayments
         const minCashDownpayment = results.propertyValue * params.MIN_CASH_PERCENTAGE;
         const balanceDownpayment = results.propertyValue - (actualLoanAmount + minCashDownpayment);
         
-        // Update main results
+        // Calculate balance downpayment percentage
+        const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - loanEligibilityPercentage;
+        
+        // Update basic results
+        document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
+        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
         document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
-        document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
-        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(results.loanAmount);
-        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
+        
+        // Update labels and values for percentage-based fields
+        document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 
+            `Your Est.Loan Eligibility (${formatPercentage(loanEligibilityPercentage)}):`;
+        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(actualLoanAmount);
+        
+        document.getElementById(`${prefix}minCashDownpaymentLabel`).textContent = 
+            `Minimum Cash Downpayment (${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}):`;
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
+        
+        document.getElementById(`${prefix}balanceDownpaymentLabel`).textContent = 
+            `Balance Cash/CPF Downpayment (${formatPercentage(balanceDownpaymentPercentage)}):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
     
-        // Update conditional results (pledge and show funds)
-        const conditionalResultsElement = document.getElementById(`${prefix}conditionalResults`);
+        // Update conditional results if they exist
+        const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
         if (results.pledgeFundData) {
             document.getElementById(`${prefix}pledgeFund`).textContent = formatCurrency(results.pledgeFundData.pledgeFund);
             document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
-            conditionalResultsElement.classList.remove('hidden');
+            conditionalResults.classList.remove('hidden');
         } else {
-            conditionalResultsElement.classList.add('hidden');
+            conditionalResults.classList.add('hidden');
         }
     }
-
     updatePropertyTenure(propertyType) {
         // Update both standard and alternative tenures
         const propertyTenureElements = document.querySelectorAll('.property-tenure, .alt-property-tenure');

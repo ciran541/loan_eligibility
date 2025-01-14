@@ -195,129 +195,128 @@
                 </form>
             </div>
 
-            <!-- Right Column: Results (Updated with dual results) -->
-            <div class="results-wrapper">
-                <!-- Standard Results (75% LTV) -->
-                <div class="results-container" id="standardResults">
-                    <div class="results-header">
-                        <h2>Standard Loan Package (75% LTV)</h2>
-                    </div>
-                    <div class="payment-structure">
-                        <h3>Payment Structure</h3>
-                        <ul class="payment-rules">
-                            <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
-                            <li>Tenor is capped at age <span class="highlight-text">65</span> and cannot exceed <span class="highlight-text property-tenure">30</span> years</li>
-                            <li>Min <span class="highlight-text">5%</span> cash downpayment</li>
-                        </ul>
-                    </div>
-                    <div class="results-content">
-                        <div class="result-item">
-                            <label>Income Weighted Average Age:</label>
-                            <span id="weightedAge">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Loan Tenure:</label>
-                            <span id="loanTenure">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Target Property Price:</label>
-                            <span id="targetPrice">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Estimated Loan Eligibility:</label>
-                            <span id="loanEligibility">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Monthly Installment:</label>
-                            <span id="monthlyInstallment">-</span>
-                            <span class="reference-rate">Reference Rate: 2.5% p.a</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Maximum Bank Loan (75% cap):</label>
-                            <span id="maxBankLoan">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Minimum Cash Downpayment:</label>
-                            <span id="minCashDownpayment">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Balance Cash/CPF Downpayment:</label>
-                            <span id="balanceDownpayment">-</span>
-                        </div>
-                    </div>
-                    <div class="conditional-results hidden" id="conditionalResults">
-                        <div class="result-item">
-                            <label>Pledge Fund:</label>
-                            <span id="pledgeFund">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Show Fund:</label>
-                            <span id="showFund">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Alternative Results (55% LTV) -->
-                <div class="results-container" id="alternativeResults">
-                    <div class="results-header">
-                        <h2>Alternative Loan Package (55% LTV)</h2>
-                    </div>
-                    <div class="payment-structure">
-                        <h3>Payment Structure</h3>
-                        <ul class="payment-rules">
-                            <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
-                            <li>Tenor is capped at age <span class="highlight-text">75</span> and cannot exceed <span class="highlight-text alt-property-tenure">35</span> years</li>
-                            <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
-                        </ul>
-                    </div>
-                    <div class="results-content">
-                        <div class="result-item">
-                            <label>Income Weighted Average Age:</label>
-                            <span id="alt-weightedAge">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Loan Tenure:</label>
-                            <span id="alt-loanTenure">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Target Property Price:</label>
-                            <span id="alt-targetPrice">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Estimated Loan Eligibility:</label>
-                            <span id="alt-loanEligibility">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Monthly Installment:</label>
-                            <span id="alt-monthlyInstallment">-</span>
-                            <span class="reference-rate">Reference Rate: 2.5% p.a</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Maximum Bank Loan (55% cap):</label>
-                            <span id="alt-maxBankLoan">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Minimum Cash Downpayment:</label>
-                            <span id="alt-minCashDownpayment">-</span>
-                        </div>
-                        <div class="result-item">
-                            <label>Balance Cash/CPF Downpayment:</label>
-                            <span id="alt-balanceDownpayment">-</span>
-                        </div>
-                    </div>
-                    <!-- Conditional Results (Unchanged) -->
-                <div class="conditional-results hidden" id="alt-conditionalResults">
-                    <div class="result-item">
-                        <label>Pledge Fund:</label>
-                        <span id="alt-pledgeFund">-</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Show Fund:</label>
-                        <span id="alt-showFund">-</span>
-                    </div>
-                </div>
-                </div>
+            <!-- Results Section -->
+<div class="results-wrapper">
+    <!-- Standard Results (75% LTV) -->
+    <div class="results-container" id="standardResults">
+        <div class="results-header">
+            <h2>Standard Loan Package (75% LTV)</h2>
+        </div>
+        <div class="payment-structure">
+            <h3>Payment Structure</h3>
+            <ul class="payment-rules">
+                <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
+                <li>Tenor is capped at age <span class="highlight-text">65</span> and cannot exceed <span class="highlight-text property-tenure">30</span> years</li>
+                <li>Min <span class="highlight-text">5%</span> cash downpayment</li>
+            </ul>
+        </div>
+        <div class="results-content">
+            <div class="result-item">
+                <label>Target Property Price:</label>
+                <span id="targetPrice">-</span>
             </div>
+            <div class="result-item">
+                <label>Maximum Loan-To-Valuation (LTV-75%):</label>
+                <span id="maxBankLoan">-</span>
+            </div>
+            <div class="result-item">
+                <label>Income Weighted Average Age:</label>
+                <span id="weightedAge">-</span>
+            </div>
+            <div class="result-item">
+                <label id="loanEligibilityLabel">Your Est.Loan Eligibility (0.00%):</label>
+                <span id="loanEligibility">-</span>
+            </div>
+            <div class="result-item">
+                <label>Loan Tenure:</label>
+                <span id="loanTenure">-</span>
+            </div>
+            <div class="result-item">
+                <label id="minCashDownpaymentLabel">Minimum Cash Downpayment (5.00%):</label>
+                <span id="minCashDownpayment">-</span>
+            </div>
+            <div class="result-item">
+                <label>Monthly Installment:</label>
+                <span id="monthlyInstallment">-</span>
+                <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+            </div>
+            <div class="result-item">
+                <label id="balanceDownpaymentLabel">Balance Cash/CPF Downpayment (0.00%):</label>
+                <span id="balanceDownpayment">-</span>
+            </div>
+        </div>
+        <div class="conditional-results hidden" id="conditionalResults">
+            <div class="result-item">
+                <label>Pledge Fund:</label>
+                <span id="pledgeFund">-</span>
+            </div>
+            <div class="result-item">
+                <label>Show Fund:</label>
+                <span id="showFund">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative Results (55% LTV) -->
+    <div class="results-container" id="alternativeResults">
+        <div class="results-header">
+            <h2>Alternative Loan Package (55% LTV)</h2>
+        </div>
+        <div class="payment-structure">
+            <h3>Payment Structure</h3>
+            <ul class="payment-rules">
+                <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
+                <li>Tenor is capped at age <span class="highlight-text">75</span> and cannot exceed <span class="highlight-text alt-property-tenure">35</span> years</li>
+                <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
+            </ul>
+        </div>
+        <div class="results-content">
+            <div class="result-item">
+                <label>Target Property Price:</label>
+                <span id="alt-targetPrice">-</span>
+            </div>
+            <div class="result-item">
+                <label>Maximum Loan-To-Valuation (LTV-55%):</label>
+                <span id="alt-maxBankLoan">-</span>
+            </div>
+            <div class="result-item">
+                <label>Income Weighted Average Age:</label>
+                <span id="alt-weightedAge">-</span>
+            </div>
+            <div class="result-item">
+                <label id="alt-loanEligibilityLabel">Your Est.Loan Eligibility (0.00%):</label>
+                <span id="alt-loanEligibility">-</span>
+            </div>
+            <div class="result-item">
+                <label>Loan Tenure:</label>
+                <span id="alt-loanTenure">-</span>
+            </div>
+            <div class="result-item">
+                <label id="alt-minCashDownpaymentLabel">Minimum Cash Downpayment (10.00%):</label>
+                <span id="alt-minCashDownpayment">-</span>
+            </div>
+            <div class="result-item">
+                <label>Monthly Installment:</label>
+                <span id="alt-monthlyInstallment">-</span>
+                <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+            </div>
+            <div class="result-item">
+                <label id="alt-balanceDownpaymentLabel">Balance Cash/CPF Downpayment (0.00%):</label>
+                <span id="alt-balanceDownpayment">-</span>
+            </div>
+        </div>
+        <div class="conditional-results hidden" id="alt-conditionalResults">
+            <div class="result-item">
+                <label>Pledge Fund:</label>
+                <span id="alt-pledgeFund">-</span>
+            </div>
+            <div class="result-item">
+                <label>Show Fund:</label>
+                <span id="alt-showFund">-</span>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
     <script src="calculator.js"></script>
