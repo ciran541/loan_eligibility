@@ -62,6 +62,24 @@
                     <!-- Borrower 1 Details Section -->
                     <section class="form-section" id="borrower1Details">
                         <h2>Borrower 1 Details</h2>
+                        <!-- New Residency Field -->
+    <div class="form-group">
+        <label>Residency Status</label>
+        <div class="radio-group">
+            <label class="radio-label">
+                <input type="radio" name="borrower1ResidencyStatus" value="singaporean" checked required>
+                <span class="radio-text">Singaporean</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="borrower1ResidencyStatus" value="permanentResident">
+                <span class="radio-text">Permanent Resident</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="borrower1ResidencyStatus" value="foreigner">
+                <span class="radio-text">Foreigner</span>
+            </label>
+        </div>
+    </div>
                         <div class="form-group">
                             <label for="borrower1Age">Age</label>
                             <div class="input-wrapper">
@@ -130,6 +148,25 @@
                     <!-- Borrower 2 Details Section (Initially Hidden) -->
                     <section class="form-section hidden" id="borrower2Details">
                         <h2>Borrower 2 Details</h2>
+                        <!-- New Residency Field -->
+    <div class="form-group">
+        <label>Residency Status</label>
+        <div class="radio-group">
+            <label class="radio-label">
+                <input type="radio" name="borrower2ResidencyStatus" value="singaporean" checked>
+                <span class="radio-text">Singaporean</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="borrower2ResidencyStatus" value="permanentResident">
+                <span class="radio-text">Permanent Resident</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="borrower2ResidencyStatus" value="foreigner">
+                <span class="radio-text">Foreigner</span>
+            </label>
+        </div>
+    </div>
+
                         <div class="form-group">
                             <label for="borrower2Age">Age</label>
                             <div class="input-wrapper">
@@ -201,7 +238,7 @@
     <!-- Standard Results (75% LTV) -->
     <div class="results-container" id="standardResults">
         <div class="results-header">
-            <h2>Standard Loan Package (75% LTV)</h2>
+            <h2>Standard Loan Package (LTV-75%)</h2>
         </div>
         <div class="payment-structure">
             <h3>Payment Structure</h3>
@@ -214,8 +251,8 @@
         <div class="chart-section">
             <canvas id="standardLoanChart"></canvas>
             <div class="chart-labels">
-                <span class="chart-label loan">Loan Amount</span>
-                <span class="chart-label remaining">Remaining</span>
+                <span class="chart-label loan">Loan Eligibility</span>
+                <span class="chart-label remaining">Loan Shortfall</span>
             </div>
         </div>
         <div class="results-content">
@@ -263,12 +300,41 @@
                 <span id="showFund">-</span>
             </div>
         </div>
+        <!-- Updated Misc Costs section with BSD -->
+        <div class="results-content misc-costs">
+            <h3>Miscellaneous Costs</h3>
+            <div class="result-item">
+                <label>Legal Fee (Purchase)</label>
+                <span id="legalFee">-</span>
+                <span class="reference-rate">Approximate fee, may vary</span>
+            </div>
+            <div class="result-item">
+                <label>Valuation Fee</label>
+                <span id="valuationFee">-</span>
+                <span class="reference-rate">Based on property value</span>
+            </div>
+            <div class="result-item">
+                <label>Buyer Stamp Duty</label>
+                <span id="buyerStampDuty">-</span>
+                <span class="reference-rate">Progressive rate: 1% to 6%</span>
+            </div>
+            <div class="result-item">
+                <label>Additional Buyer Stamp Duty</label>
+                <span id="absd">-</span>
+                <span class="reference-rate">Based on residency status</span>
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
+                   class="info-link" 
+                   target="_blank">
+                    Information on ABSD remission can be found at IRAS website
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Alternative Results (55% LTV) -->
     <div class="results-container" id="alternativeResults">
         <div class="results-header">
-            <h2>Alternative Loan Package (55% LTV)</h2>
+            <h2>Alternative Loan Package (LTV-55%)</h2>
         </div>
         <div class="payment-structure">
             <h3>Payment Structure</h3>
@@ -278,13 +344,13 @@
                 <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
             </ul>
         </div>
-<div class="chart-section">
-    <canvas id="alternativeLoanChart"></canvas>
-    <div class="chart-labels">
-        <span class="chart-label loan">Loan Amount</span>
-        <span class="chart-label remaining">Remaining</span>
-    </div>
-</div>
+        <div class="chart-section">
+            <canvas id="alternativeLoanChart"></canvas>
+            <div class="chart-labels">
+                <span class="chart-label loan">Loan Eligibility</span>
+                <span class="chart-label remaining">Loan Shortfall</span>
+            </div>
+        </div>
         <div class="results-content">
             <div class="result-item">
                 <label>Target Property Price:</label>
@@ -328,6 +394,35 @@
             <div class="result-item">
                 <label>Show Fund:</label>
                 <span id="alt-showFund">-</span>
+            </div>
+        </div>
+        <!-- Updated Misc Costs section with BSD -->
+        <div class="results-content misc-costs">
+            <h3>Miscellaneous Costs</h3>
+            <div class="result-item">
+                <label>Legal Fee (Purchase)</label>
+                <span id="alt-legalFee">-</span>
+                <span class="reference-rate">Approximate fee, may vary</span>
+            </div>
+            <div class="result-item">
+                <label>Valuation Fee</label>
+                <span id="alt-valuationFee">-</span>
+                <span class="reference-rate">Based on property value</span>
+            </div>
+            <div class="result-item">
+                <label>Buyer Stamp Duty</label>
+                <span id="alt-buyerStampDuty">-</span>
+                <span class="reference-rate">Progressive rate: 1% to 6%</span>
+            </div>
+            <div class="result-item">
+                <label>Additional Buyer Stamp Duty</label>
+                <span id="alt-absd">-</span>
+                <span class="reference-rate">Based on residency status</span>
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
+                   class="info-link" 
+                   target="_blank">
+                    Information on ABSD remission can be found at IRAS website
+                </a>
             </div>
         </div>
     </div>

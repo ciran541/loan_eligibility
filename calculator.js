@@ -149,6 +149,18 @@ class LoanCalculator {
                 }
             });
         });
+
+        // Add this to the property type event listeners
+    document.querySelectorAll('input[name="propertyType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            this.updatePropertyTenure(e.target.value);
+            this.updateMiscCosts('');     // Update standard results
+            this.updateMiscCosts('alt-'); // Update alternative results
+            if (this.validateForm()) {
+                this.calculateLoanEligibility();
+            }
+        });
+    });
     }
 
     toggleBorrower2Fields() {
@@ -301,6 +313,123 @@ class LoanCalculator {
             return (noa * this.NOA_FACTOR / 12);
         }
     }
+
+    // Add these methods to the LoanCalculator class
+
+calculateLegalFee(propertyType) {
+    return propertyType === 'hdb' ? 1800 : 2500;
+}
+
+calculateValuationFee(propertyType, propertyValue) {
+    if (propertyType === 'hdb') {
+        return 120;
+    }
+    
+    // For private property
+    if (propertyValue < 1000000) {
+        return 300;
+    } else if (propertyValue < 2000000) {
+        return 400;
+    } else if (propertyValue < 3000000) {
+        return 500;
+    } else {
+        return 500; // Base fee for 3M onwards
+    }
+}
+
+// Add this method to calculate BSD
+calculateBSD(propertyValue) {
+    let bsd = 0;
+
+    // First $180k @ 1%
+    if (propertyValue <= 180000) {
+        return propertyValue * 0.01;
+    }
+    bsd += 180000 * 0.01; // $1,800
+
+    // $180k to $360k @ 2%
+    if (propertyValue <= 360000) {
+        return bsd + (propertyValue - 180000) * 0.02;
+    }
+    bsd += 180000 * 0.02; // $3,600
+
+    // $360k to $1m @ 3%
+    if (propertyValue <= 1000000) {
+        return bsd + (propertyValue - 360000) * 0.03;
+    }
+    bsd += 640000 * 0.03; // $19,200
+
+    // $1m to $1.5m @ 4%
+    if (propertyValue <= 1500000) {
+        return bsd + (propertyValue - 1000000) * 0.04;
+    }
+    bsd += 500000 * 0.04; // $20,000
+
+    // $1.5m to $3m @ 5%
+    if (propertyValue <= 3000000) {
+        return bsd + (propertyValue - 1500000) * 0.05;
+    }
+    bsd += 1500000 * 0.05; // $75,000
+
+    // Above $3m @ 6%
+    bsd += (propertyValue - 3000000) * 0.06;
+
+    return bsd;
+}
+// Add this method to calculate ABSD
+calculateABSD(propertyValue) {
+    const isSingle = document.querySelector('input[name="borrowerCount"][value="single"]').checked;
+    
+    // Get residency status for borrower 1
+    const borrower1Status = document.querySelector('input[name="borrower1ResidencyStatus"]:checked').value;
+    
+    // For single borrower
+    if (isSingle) {
+        if (borrower1Status === 'foreigner') {
+            return propertyValue * 0.60; // 60% for foreigner
+        } else if (borrower1Status === 'permanentResident') {
+            return propertyValue * 0.05; // 5% for PR
+        }
+        return 0; // 0% for Singaporean
+    }
+    
+    // For joint application, get borrower 2's status
+    const borrower2Status = document.querySelector('input[name="borrower2ResidencyStatus"]:checked').value;
+    
+    // If either borrower is a foreigner
+    if (borrower1Status === 'foreigner' || borrower2Status === 'foreigner') {
+        return propertyValue * 0.60; // 60% if any foreigner
+    }
+    
+    // If either borrower is PR (and no foreigner)
+    if (borrower1Status === 'permanentResident' || borrower2Status === 'permanentResident') {
+        return propertyValue * 0.05; // 5% if any PR
+    }
+    
+    // Both are Singaporeans
+    return 0;
+}
+
+// Update the updateMiscCosts method to include ABSD
+updateMiscCosts(prefix = '') {
+    const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
+    const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+    
+    // Calculate fees
+    const legalFee = this.calculateLegalFee(propertyType);
+    const valuationFee = this.calculateValuationFee(propertyType, propertyValue);
+    const bsd = this.calculateBSD(propertyValue);
+    const absd = this.calculateABSD(propertyValue);
+    
+    // Update display
+    const formatCurrency = (number) => `SGD ${Math.round(number).toLocaleString()}`;
+    
+    document.getElementById(`${prefix}legalFee`).textContent = formatCurrency(legalFee);
+    document.getElementById(`${prefix}valuationFee`).textContent = formatCurrency(valuationFee);
+    document.getElementById(`${prefix}buyerStampDuty`).textContent = formatCurrency(bsd);
+    document.getElementById(`${prefix}absd`).textContent = formatCurrency(absd);
+}
+
 
     calculateTotalIncome() {
         const borrower1Income = this.calculateBorrowerIncome('borrower1');
@@ -465,6 +594,7 @@ class LoanCalculator {
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
         const formatPercentage = (number) => `${number.toFixed(2)}%`;
         const params = type === 'standard' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS;
+        this.updateMiscCosts(prefix);
         
         // Calculate maximum bank loan based on property value
         const maxBankLoan = results.propertyValue * params.MAX_LOAN_PERCENTAGE;
@@ -509,6 +639,8 @@ class LoanCalculator {
         document.getElementById(`${prefix}balanceDownpaymentLabel`).textContent = 
             `Balance Cash/CPF Downpayment (${formatPercentage(balanceDownpaymentPercentage)}):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
+
+        
     
         // Update conditional results if they exist
         const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
