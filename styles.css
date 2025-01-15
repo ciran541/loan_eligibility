@@ -33,6 +33,7 @@ body {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    padding: 1rem;
 }
 
 .calculator-wrapper {
@@ -130,12 +131,14 @@ input[type="text"]:focus {
     display: flex;
     flex-direction: row;
     gap: 2rem;
+    flex-wrap: wrap;
 }
 
 .radio-label {
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    min-width: 120px;
 }
 
 .radio-text {
@@ -144,6 +147,7 @@ input[type="text"]:focus {
     gap: 0.75rem;
     font-size: 14px;
     color: #6b7280;
+    word-break: break-word;
 }
 
 .radio-text::before {
@@ -336,6 +340,77 @@ input.error + .error-message {
     }
 }
 
+/* Add responsive styles */
+@media screen and (max-width: 480px) {
+    .radio-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .radio-label {
+        min-width: 100%; /* Full width on mobile */
+    }
+
+    .radio-text {
+        font-size: 13px; /* Slightly smaller font on mobile */
+    }
+
+    /* Adjust form group spacing */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    /* Adjust heading sizes */
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Adjust form padding */
+    .form-container {
+        padding: 1.25rem;
+    }
+
+    /* Adjust input padding */
+    input[type="number"],
+    input[type="text"] {
+        padding: 0.75rem;
+        font-size: 0.9375rem;
+    }
+
+    .input-icon {
+        width: 40px; /* Slightly smaller icon container */
+    }
+}
+
+/* Add a medium breakpoint for better transition */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    .radio-group {
+        gap: 1.5rem;
+    }
+
+    .radio-label {
+        min-width: calc(50% - 1rem); /* Two columns with gap consideration */
+    }
+}
+
+/* Adjust overall responsive layout */
+@media screen and (max-width: 768px) {
+    .calculator-wrapper {
+        flex-direction: column;
+    }
+
+    .form-container {
+        max-width: 100%;
+        margin-right: 0;
+    }
+
+    .results-wrapper {
+        width: 100%;
+        position: static;
+    }
+}
+
 /* Custom scrollbar for results wrapper */
 .results-wrapper::-webkit-scrollbar {
     width: 4px;
@@ -438,6 +513,7 @@ input.error + .error-message {
     margin-bottom: 1rem;
     color: var(--text-color);
     font-weight: 600;
+    text-align: center;
 }
 
 .result-item {
@@ -504,4 +580,69 @@ input.error + .error-message {
 .result-item {
     padding: 1.25rem;
     padding-bottom: 1.5rem;
+}
+
+.funds-header h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+    text-align: center;
+}
+
+.funds-details {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.fund-item {
+    margin-bottom: 1rem;
+}
+
+.fund-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.fund-amount {
+    font-size: 1.125rem;
+    color: var(--highlight-color);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.fund-helper-text {
+    font-size: 0.775em;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.funds-separator {
+    text-align: center;
+    font-weight: 500;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.funds-separator::before,
+.funds-separator::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background: #ddd;
+    position: absolute;
+    top: 50%;
+    width: 45%;
+}
+
+.funds-separator::before {
+    left: 0;
+}
+
+.funds-separator::after {
+    right: 0;
 }

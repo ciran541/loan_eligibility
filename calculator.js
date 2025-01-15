@@ -643,15 +643,17 @@ updateMiscCosts(prefix = '') {
         
     
         // Update conditional results if they exist
-        const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
-        if (results.pledgeFundData) {
-            document.getElementById(`${prefix}pledgeFund`).textContent = formatCurrency(results.pledgeFundData.pledgeFund);
-            document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
-            conditionalResults.classList.remove('hidden');
-        } else {
-            conditionalResults.classList.add('hidden');
-        }
+    const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
+    if (results.pledgeFundData) {
+        document.getElementById(`${prefix}pledgeFund`).textContent = 
+            formatCurrency(results.pledgeFundData.pledgeFund);
+        document.getElementById(`${prefix}showFund`).textContent = 
+            formatCurrency(results.pledgeFundData.showFund);
+        conditionalResults.classList.remove('hidden');
+    } else {
+        conditionalResults.classList.add('hidden');
     }
+}
 
     
     updatePropertyTenure(propertyType) {
