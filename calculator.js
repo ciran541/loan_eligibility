@@ -59,12 +59,36 @@ class LoanCalculator {
             }
         };
 
+        // new property for label texts
+        this.LABEL_TEXTS = {
+            employed: 'Annual Bonus (SGD)',
+            selfEmployed: 'Annual Income (SGD)'
+        };
+
         // Track touched fields for validation
         this.touchedFields = new Set();
 
         this.initializeFormState();
         this.initializeEventListeners();
         this.calculateLoanEligibility();
+        this.initializeNoaLabels();
+    }
+
+    // new method to initialize NOA labels
+    initializeNoaLabels() {
+        ['borrower1', 'borrower2'].forEach(borrower => {
+            this.updateNoaLabel(borrower);
+        });
+    }
+
+    // new method to update NOA label
+    updateNoaLabel(borrower) {
+        const employmentStatus = document.querySelector(`input[name="${borrower}EmploymentStatus"]:checked`).value;
+        const noaLabel = document.getElementById(`${borrower}NoaLabel`);
+        
+        if (noaLabel) {
+            noaLabel.textContent = this.LABEL_TEXTS[employmentStatus];
+        }
     }
 
     initializeFormState() {
@@ -119,6 +143,7 @@ class LoanCalculator {
             document.querySelectorAll(`input[name="${borrower}EmploymentStatus"]`).forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     this.toggleEmploymentFields(borrower, e.target.value);
+                    this.updateNoaLabel(borrower);
                     if (this.validateForm()) {
                         this.calculateLoanEligibility();
                     }
@@ -189,17 +214,24 @@ class LoanCalculator {
         const noaGroup = document.getElementById(`${borrower}NoaGroup`);
         const basicSalaryInput = document.getElementById(`${borrower}BasicSalary`);
         const noaInput = document.getElementById(`${borrower}NOA`);
+        const noaLabel = document.getElementById(`${borrower}NoaLabel`);
 
         if (status === 'employed') {
             basicSalaryGroup.classList.remove('hidden');
             noaGroup.classList.remove('hidden');
             basicSalaryInput.required = true;
             noaInput.required = false;
+            if (noaLabel) {
+                noaLabel.textContent = this.LABEL_TEXTS.employed;
+            }
         } else {
             basicSalaryGroup.classList.add('hidden');
             noaGroup.classList.remove('hidden');
             basicSalaryInput.required = false;
             noaInput.required = true;
+            if (noaLabel) {
+                noaLabel.textContent = this.LABEL_TEXTS.selfEmployed;
+            }
         }
 
         // Restore saved values for the selected status
@@ -549,6 +581,30 @@ updateMiscCosts(prefix = '') {
     }
 
     initializeChart(canvasId) {
+        // Plugin for center text
+        const centerTextPlugin = {
+            id: 'centerText',
+            afterDraw: (chart) => {
+                const { ctx, chartArea: {left, top, right, bottom}, width, height } = chart;
+                const text = chart.data.datasets[0].data[0].toFixed(2) + '% / ' + 
+                            (canvasId === 'standardLoanChart' ? '75%' : '55%');
+                
+                ctx.restore();
+                ctx.font = '15px Arial';
+                ctx.fontweight = 'bold';
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#1EA8E0';
+                
+                // Calculate the center of the chart
+                const centerX = (left + right) / 2;
+                const centerY = (top + bottom) / 2;
+                
+                ctx.fillText(text, centerX, centerY);
+                ctx.save();
+            }
+        };
+    
         return new Chart(document.getElementById(canvasId), {
             type: 'doughnut',
             data: {
@@ -559,25 +615,30 @@ updateMiscCosts(prefix = '') {
                             .getPropertyValue('--highlight-color'),
                         '#e5e7eb'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    borderRadius: 5,
+                    spacing: 2
                 }]
             },
             options: {
-                cutout: '70%',
+                cutout: '75%',
+                radius: '90%',
+                responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
                         display: false
                     },
                     tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                return context.raw.toFixed(2) + '%';
-                            }
-                        }
+                        enabled: false
                     }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true
                 }
-            }
+            },
+            plugins: [centerTextPlugin]
         });
     }
     

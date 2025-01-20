@@ -97,11 +97,13 @@
                             <label>Employment Status</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="borrower1EmploymentStatus" value="employed" checked required>
+                                    <input type="radio" name="borrower1EmploymentStatus" value="employed" checked required 
+                                           onchange="updateNoaLabel('borrower1')">
                                     <span class="radio-text">Employed</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="borrower1EmploymentStatus" value="selfEmployed">
+                                    <input type="radio" name="borrower1EmploymentStatus" value="selfEmployed" 
+                                           onchange="updateNoaLabel('borrower1')">
                                     <span class="radio-text">Self-Employed</span>
                                 </label>
                             </div>
@@ -120,13 +122,13 @@
                         </div>
 
                         <div class="form-group" id="borrower1NoaGroup">
-                            <label for="borrower1NOA">Annual NOA Income (SGD)</label>
+                            <label for="borrower1NOA" id="borrower1NoaLabel">Annual Bonus (SGD)</label>
                             <div class="input-wrapper">
                                 <div class="input-icon">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
                                 <input type="number" id="borrower1NOA" name="borrower1NOA" 
-                                       min="0" placeholder="Enter NOA income" value="10000">
+                                       min="0" placeholder="Enter amount" value="10000">
                             </div>
                             <span class="error-message" id="borrower1NOAError"></span>
                         </div>
@@ -184,11 +186,13 @@
                             <label>Employment Status</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="borrower2EmploymentStatus" value="employed" checked>
+                                    <input type="radio" name="borrower2EmploymentStatus" value="employed" checked 
+                                           onchange="updateNoaLabel('borrower2')">
                                     <span class="radio-text">Employed</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="borrower2EmploymentStatus" value="selfEmployed">
+                                    <input type="radio" name="borrower2EmploymentStatus" value="selfEmployed" 
+                                           onchange="updateNoaLabel('borrower2')">
                                     <span class="radio-text">Self-Employed</span>
                                 </label>
                             </div>
@@ -207,13 +211,13 @@
                         </div>
 
                         <div class="form-group" id="borrower2NoaGroup">
-                            <label for="borrower2NOA">Annual NOA Income (SGD)</label>
+                            <label for="borrower2NOA" id="borrower2NoaLabel">Annual Bonus (SGD)</label>
                             <div class="input-wrapper">
                                 <div class="input-icon">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
                                 <input type="number" id="borrower2NOA" name="borrower2NOA" 
-                                       min="0" placeholder="Enter NOA income">
+                                       min="0" placeholder="Enter amount">
                             </div>
                             <span class="error-message" id="borrower2NOAError"></span>
                         </div>
@@ -243,16 +247,36 @@
         <div class="payment-structure">
             <h3>Payment Structure</h3>
             <ul class="payment-rules">
-                <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
-                <li>Tenor is capped at age <span class="highlight-text">65</span> and cannot exceed <span class="highlight-text property-tenure">30</span> years</li>
                 <li>Min <span class="highlight-text">5%</span> cash downpayment</li>
+                <li>Tenor is capped at age <span class="highlight-text">65</span> and cannot exceed <span class="highlight-text property-tenure">30</span> years</li>
+                <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
             </ul>
         </div>
         <div class="chart-section">
-            <canvas id="standardLoanChart"></canvas>
-            <div class="chart-labels">
-                <span class="chart-label loan">Loan Eligibility</span>
-                <span class="chart-label remaining">Loan Shortfall</span>
+            <div class="chart-container">
+                <canvas id="standardLoanChart"></canvas>
+                <div class="chart-labels">
+                    <span class="chart-label loan">Loan Eligibility</span>
+                    <span class="chart-label remaining">Loan Shortfall</span>
+                </div>
+            </div>
+            <div class="conditional-results" id="conditionalResults">
+                <div class="funds-header">
+                    <h3>To get a <span class="highlight-text">75%</span> Loan:</h3>
+                </div>
+                <div class="funds-details">
+                    <div class="fund-item">
+                        <div class="fund-label">Pledge Funds:</div>
+                        <div class="fund-amount" id="pledgeFund">-</div>
+                        <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
+                    </div>
+                    <div class="funds-separator">Or</div>
+                    <div class="fund-item">
+                        <div class="fund-label">Show Funds:</div>
+                        <div class="fund-amount" id="showFund">-</div>
+                        <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="results-content">
@@ -277,7 +301,7 @@
                 <span id="loanTenure">-</span>
             </div>
             <div class="result-item">
-                <label id="minCashDownpaymentLabel">Minimum Cash Downpayment (5.00%):</label>
+                <label id="minCashDownpaymentLabel">Minimum Cash Downpayment (5%):</label>
                 <span id="minCashDownpayment">-</span>
             </div>
             <div class="result-item">
@@ -290,26 +314,6 @@
                 <span id="balanceDownpayment">-</span>
             </div>
         </div>
-        <!-- Updated HTML structure for conditional results -->
-<div class="conditional-results hidden" id="conditionalResults">
-    <div class="funds-header">
-        <h3>To get a 75% Loan</h3>
-    </div>
-    <div class="funds-details">
-        <div class="fund-item">
-            <div class="fund-label">Pledge Funds:</div>
-            <div class="fund-amount" id="pledgeFund">-</div>
-            <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
-        </div>
-        <div class="funds-separator">Or</div>
-        <div class="fund-item">
-            <div class="fund-label">Show Funds:</div>
-            <div class="fund-amount" id="showFund">-</div>
-            <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
-        </div>
-    </div>
-</div>
-        <!-- Updated Misc Costs section with BSD -->
         <div class="results-content misc-costs">
             <h3>Miscellaneous Costs</h3>
             <div class="result-item">
@@ -325,7 +329,11 @@
             <div class="result-item">
                 <label>Buyer Stamp Duty</label>
                 <span id="buyerStampDuty">-</span>
-                <span class="reference-rate">Progressive rate: 1% to 6%</span>
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
+                   class="info-link" 
+                   target="_blank">
+                   Information on Buyer Stamp Duty is available on the IRAS website here.
+                </a>
             </div>
             <div class="result-item">
                 <label>Additional Buyer Stamp Duty</label>
@@ -334,7 +342,7 @@
                 <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
                    class="info-link" 
                    target="_blank">
-                    Information on ABSD remission can be found at IRAS website
+                    Information on ABSD remission can be found at IRAS website here.
                 </a>
             </div>
         </div>
@@ -348,16 +356,36 @@
         <div class="payment-structure">
             <h3>Payment Structure</h3>
             <ul class="payment-rules">
-                <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
-                <li>Tenor is capped at age <span class="highlight-text">75</span> and cannot exceed <span class="highlight-text alt-property-tenure">35</span> years</li>
                 <li>Min <span class="highlight-text">10%</span> cash downpayment</li>
+                <li>Tenor is capped at age <span class="highlight-text">75</span> and cannot exceed <span class="highlight-text alt-property-tenure">35</span> years</li>
+                <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
             </ul>
         </div>
         <div class="chart-section">
-            <canvas id="alternativeLoanChart"></canvas>
-            <div class="chart-labels">
-                <span class="chart-label loan">Loan Eligibility</span>
-                <span class="chart-label remaining">Loan Shortfall</span>
+            <div class="chart-container">
+                <canvas id="alternativeLoanChart"></canvas>
+                <div class="chart-labels">
+                    <span class="chart-label loan">Loan Eligibility</span>
+                    <span class="chart-label remaining">Loan Shortfall</span>
+                </div>
+            </div>
+            <div class="conditional-results" id="alt-conditionalResults">
+                <div class="funds-header">
+                    <h3>To get a <span class="highlight-text">55%</span> Loan:</h3>
+                </div>
+                <div class="funds-details">
+                    <div class="fund-item">
+                        <div class="fund-label">Pledge Funds:</div>
+                        <div class="fund-amount" id="alt-pledgeFund">-</div>
+                        <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
+                    </div>
+                    <div class="funds-separator">Or</div>
+                    <div class="fund-item">
+                        <div class="fund-label">Show Funds:</div>
+                        <div class="fund-amount" id="alt-showFund">-</div>
+                        <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="results-content">
@@ -382,7 +410,7 @@
                 <span id="alt-loanTenure">-</span>
             </div>
             <div class="result-item">
-                <label id="alt-minCashDownpaymentLabel">Minimum Cash Downpayment (10.00%):</label>
+                <label id="alt-minCashDownpaymentLabel">Minimum Cash Downpayment (10%):</label>
                 <span id="alt-minCashDownpayment">-</span>
             </div>
             <div class="result-item">
@@ -395,26 +423,6 @@
                 <span id="alt-balanceDownpayment">-</span>
             </div>
         </div>
-        <!-- Alternative Results section needs the same structure -->
-<div class="conditional-results hidden" id="alt-conditionalResults">
-    <div class="funds-header">
-        <h3>To get a 55% Loan</h3>
-    </div>
-    <div class="funds-details">
-        <div class="fund-item">
-            <div class="fund-label">Pledge Funds:</div>
-            <div class="fund-amount" id="alt-pledgeFund">-</div>
-            <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
-        </div>
-        <div class="funds-separator">Or</div>
-        <div class="fund-item">
-            <div class="fund-label">Show Funds:</div>
-            <div class="fund-amount" id="alt-showFund">-</div>
-            <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
-        </div>
-    </div>
-</div>
-        <!-- Updated Misc Costs section with BSD -->
         <div class="results-content misc-costs">
             <h3>Miscellaneous Costs</h3>
             <div class="result-item">
@@ -430,7 +438,11 @@
             <div class="result-item">
                 <label>Buyer Stamp Duty</label>
                 <span id="alt-buyerStampDuty">-</span>
-                <span class="reference-rate">Progressive rate: 1% to 6%</span>
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
+                   class="info-link" 
+                   target="_blank">
+                   Information on Buyer Stamp Duty is available on the IRAS website here.
+                </a>
             </div>
             <div class="result-item">
                 <label>Additional Buyer Stamp Duty</label>
@@ -439,7 +451,7 @@
                 <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
                    class="info-link" 
                    target="_blank">
-                    Information on ABSD remission can be found at IRAS website
+                    Information on ABSD remission can be found at IRAS website here.
                 </a>
             </div>
         </div>
