@@ -605,7 +605,7 @@ input.error + .error-message {
     }
 
     .chart-container {
-        width: 160px;
+        width: 200px;
         margin: 0 auto;
     }
 
