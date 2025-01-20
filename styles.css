@@ -672,7 +672,24 @@ input.error + .error-message {
     border-radius: 0.375rem;
     transition: all 0.2s ease;
 }
+/* Special styling for loan eligibility value */
+.result-item span[id$="loanEligibility"] {
+    display: inline-block;
+    background-color: rgb(0, 188, 235, 0.1);
+    padding: 0.375rem 0.625rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
 
+/* For both standard and alternative loan sections */
+#loanEligibility,
+#alt-loanEligibility {
+    display: inline-block;
+    background-color: rgb(0, 188, 235, 0.1);
+    padding: 0.375rem 0.625rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
 .result-item:hover {
     background-color: #f3f4f6;
 }
