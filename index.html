@@ -61,7 +61,7 @@
 
                     <!-- Borrower 1 Details Section -->
                     <section class="form-section" id="borrower1Details">
-                        <h2>Borrower 1 Details</h2>
+                        <h2>Borrower 1's Income Details</h2>
                         <!-- New Residency Field -->
     <div class="form-group">
         <label>Residency Status</label>
@@ -98,12 +98,12 @@
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="borrower1EmploymentStatus" value="employed" checked required 
-                                           onchange="updateNoaLabel('borrower1')">
+                                           >
                                     <span class="radio-text">Employed</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="borrower1EmploymentStatus" value="selfEmployed" 
-                                           onchange="updateNoaLabel('borrower1')">
+                                           >
                                     <span class="radio-text">Self-Employed</span>
                                 </label>
                             </div>
@@ -149,7 +149,7 @@
 
                     <!-- Borrower 2 Details Section (Initially Hidden) -->
                     <section class="form-section hidden" id="borrower2Details">
-                        <h2>Borrower 2 Details</h2>
+                        <h2>Borrower 2's Income Details</h2>
                         <!-- New Residency Field -->
     <div class="form-group">
         <label>Residency Status</label>
@@ -242,7 +242,8 @@
     <!-- Standard Results (75% LTV) -->
     <div class="results-container" id="standardResults">
         <div class="results-header">
-            <h2>Standard Loan Package (LTV-75%)</h2>
+            <h2>Structure 1 (Loan-To-Valuation 75%)</h2>
+
         </div>
         <div class="payment-structure">
             <h3>Payment Structure</h3>
@@ -252,32 +253,8 @@
                 <li>Loan is capped at <span class="highlight-text">75%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
             </ul>
         </div>
-        <div class="chart-section">
-            <div class="chart-container">
-                <canvas id="standardLoanChart"></canvas>
-                <div class="chart-labels">
-                    <span class="chart-label loan">Loan Eligibility</span>
-                    <span class="chart-label remaining">Loan Shortfall</span>
-                </div>
-            </div>
-            <div class="conditional-results" id="conditionalResults">
-                <div class="funds-header">
-                    <h3>To get a <span class="highlight-text">75%</span> Loan:</h3>
-                </div>
-                <div class="funds-details">
-                    <div class="fund-item">
-                        <div class="fund-label">Pledge Funds:</div>
-                        <div class="fund-amount" id="pledgeFund">-</div>
-                        <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
-                    </div>
-                    <div class="funds-separator">Or</div>
-                    <div class="fund-item">
-                        <div class="fund-label">Show Funds:</div>
-                        <div class="fund-amount" id="showFund">-</div>
-                        <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
-                    </div>
-                </div>
-            </div>
+        <div class="results-title">
+            <h3>Your Loan Eligibility Results</h3>
         </div>
         <div class="results-content">
             <div class="result-item">
@@ -314,36 +291,54 @@
                 <span id="balanceDownpayment">-</span>
             </div>
         </div>
+        <div class="chart-section">
+            <div class="chart-container">
+                <canvas id="standardLoanChart"></canvas>
+                <div class="chart-labels">
+                    <span class="chart-label loan">Loan Eligibility</span>
+                    <span class="chart-label remaining">Loan Shortfall</span>
+                </div>
+            </div>
+            <div class="conditional-results" id="conditionalResults">
+                <div class="funds-header">
+                    <h3>To get maximum <span class="highlight-text">75%</span> Loan:</h3>
+                </div>
+                <div class="funds-details">
+                    <div class="fund-item">
+                        <div class="fund-label">Pledge Funds:</div>
+                        <div class="fund-amount" id="pledgeFund">-</div>
+                        <div class="fund-helper-text">Pledged funds to be placed in the bank's fixed deposit for up to 4 years.</div>
+                    </div>
+                    <div class="funds-separator">Or</div>
+                    <div class="fund-item">
+                        <div class="fund-label">Show Funds:</div>
+                        <div class="fund-amount" id="showFund">-</div>
+                        <div class="fund-helper-text">First show of funds during loan application, second show of funds before purchase completion.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="results-content misc-costs">
             <h3>Miscellaneous Costs</h3>
             <div class="result-item">
                 <label>Legal Fee (Purchase)</label>
-                <span id="legalFee">-</span>
-                <span class="reference-rate">Approximate fee, may vary</span>
+                <span id="legalFee"></span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Valuation Fee</label>
-                <span id="valuationFee">-</span>
-                <span class="reference-rate">Based on property value</span>
+                <span id="valuationFee"></span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Buyer Stamp Duty</label>
-                <span id="buyerStampDuty">-</span>
-                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
-                   class="info-link" 
-                   target="_blank">
-                   Information on Buyer Stamp Duty is available on the IRAS website here.
-                </a>
+                <span id="buyerStampDuty"></span>
+                <span class="reference-rate">Information on Buyer Stamp Duty is available on the IRAS website <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" class="info-link" target="_blank">here</a></span>
             </div>
             <div class="result-item">
                 <label>Additional Buyer Stamp Duty</label>
-                <span id="absd">-</span>
-                <span class="reference-rate">Based on residency status</span>
-                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
-                   class="info-link" 
-                   target="_blank">
-                    Information on ABSD remission can be found at IRAS website here.
-                </a>
+                <span id="absd"></span>
+                <span class="reference-rate">Information on ABSD remission can be found at IRAS website <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" class="info-link" target="_blank">here</a></span>
             </div>
         </div>
     </div>
@@ -351,7 +346,7 @@
     <!-- Alternative Results (55% LTV) -->
     <div class="results-container" id="alternativeResults">
         <div class="results-header">
-            <h2>Alternative Loan Package (LTV-55%)</h2>
+            <h2>Structure 2 (Loan-To-Valuation 55%)</h2>
         </div>
         <div class="payment-structure">
             <h3>Payment Structure</h3>
@@ -361,32 +356,8 @@
                 <li>Loan is capped at <span class="highlight-text">55%</span> of purchase price or valuation whichever is <span class="highlight-text">lower</span></li>
             </ul>
         </div>
-        <div class="chart-section">
-            <div class="chart-container">
-                <canvas id="alternativeLoanChart"></canvas>
-                <div class="chart-labels">
-                    <span class="chart-label loan">Loan Eligibility</span>
-                    <span class="chart-label remaining">Loan Shortfall</span>
-                </div>
-            </div>
-            <div class="conditional-results" id="alt-conditionalResults">
-                <div class="funds-header">
-                    <h3>To get a <span class="highlight-text">55%</span> Loan:</h3>
-                </div>
-                <div class="funds-details">
-                    <div class="fund-item">
-                        <div class="fund-label">Pledge Funds:</div>
-                        <div class="fund-amount" id="alt-pledgeFund">-</div>
-                        <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
-                    </div>
-                    <div class="funds-separator">Or</div>
-                    <div class="fund-item">
-                        <div class="fund-label">Show Funds:</div>
-                        <div class="fund-amount" id="alt-showFund">-</div>
-                        <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
-                    </div>
-                </div>
-            </div>
+        <div class="results-title">
+            <h3>Your Loan Eligibility Results</h3>
         </div>
         <div class="results-content">
             <div class="result-item">
@@ -423,36 +394,56 @@
                 <span id="alt-balanceDownpayment">-</span>
             </div>
         </div>
+        <div class="chart-section">
+            <div class="chart-container">
+                <canvas id="alternativeLoanChart"></canvas>
+                <div class="chart-labels">
+                    <span class="chart-label loan">Loan Eligibility</span>
+                    <span class="chart-label remaining">Loan Shortfall</span>
+                </div>
+            </div>
+            <div class="conditional-results" id="alt-conditionalResults">
+                <div class="funds-header">
+                    <h3>To get a <span class="highlight-text">55%</span> Loan:</h3>
+                </div>
+                <div class="funds-details">
+                    <div class="fund-item">
+                        <div class="fund-label">Pledge Funds:</div>
+                        <div class="fund-amount" id="alt-pledgeFund">-</div>
+                        <div class="fund-helper-text">funds to be kept in a bank's fixed deposit for up to 4 years</div>
+                    </div>
+                    <div class="funds-separator">Or</div>
+                    <div class="fund-item">
+                        <div class="fund-label">Show Funds:</div>
+                        <div class="fund-amount" id="alt-showFund">-</div>
+                        <div class="fund-helper-text">show funds once during loan application second time before purchase completion</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="results-content misc-costs">
             <h3>Miscellaneous Costs</h3>
             <div class="result-item">
                 <label>Legal Fee (Purchase)</label>
                 <span id="alt-legalFee">-</span>
-                <span class="reference-rate">Approximate fee, may vary</span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Valuation Fee</label>
                 <span id="alt-valuationFee">-</span>
-                <span class="reference-rate">Based on property value</span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Buyer Stamp Duty</label>
                 <span id="alt-buyerStampDuty">-</span>
-                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
-                   class="info-link" 
-                   target="_blank">
-                   Information on Buyer Stamp Duty is available on the IRAS website here.
-                </a>
+                <span class="reference-rate">Information on Buyer Stamp Duty is available on the IRAS website <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" class="info-link" target="_blank">here</a></span>
             </div>
             <div class="result-item">
                 <label>Additional Buyer Stamp Duty</label>
                 <span id="alt-absd">-</span>
-                <span class="reference-rate">Based on residency status</span>
-                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" 
-                   class="info-link" 
-                   target="_blank">
-                    Information on ABSD remission can be found at IRAS website here.
-                </a>
+                <!-- <span class="reference-rate">Based on residency status</span> -->
+                <span class="reference-rate">Information on ABSD remission can be found at IRAS website <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" class="info-link" target="_blank">here</a></span>
+
             </div>
         </div>
     </div>

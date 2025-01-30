@@ -442,7 +442,7 @@ calculateABSD(propertyValue) {
     return 0;
 }
 
-// Update the updateMiscCosts method to include ABSD
+// Modify the updateMiscCosts method to handle the special display with inline italic styling
 updateMiscCosts(prefix = '') {
     const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
     const propertyValue = parseFloat(document.getElementById('propertyValue').value);
@@ -457,11 +457,18 @@ updateMiscCosts(prefix = '') {
     const formatCurrency = (number) => `SGD ${Math.round(number).toLocaleString()}`;
     
     document.getElementById(`${prefix}legalFee`).textContent = formatCurrency(legalFee);
-    document.getElementById(`${prefix}valuationFee`).textContent = formatCurrency(valuationFee);
+    
+    // Special handling for valuation fee display with inline italic onwards text
+    const valuationFeeElement = document.getElementById(`${prefix}valuationFee`);
+    if (propertyValue >= 2000000) {
+        valuationFeeElement.innerHTML = `${formatCurrency(valuationFee)}&nbsp;<span style="font-size: 0.8em; color: #666666; font-style: italic; display: inline;">Onwards</span>`;
+    } else {
+        valuationFeeElement.textContent = formatCurrency(valuationFee);
+    }
+    
     document.getElementById(`${prefix}buyerStampDuty`).textContent = formatCurrency(bsd);
     document.getElementById(`${prefix}absd`).textContent = formatCurrency(absd);
 }
-
 
     calculateTotalIncome() {
         const borrower1Income = this.calculateBorrowerIncome('borrower1');
@@ -520,41 +527,49 @@ updateMiscCosts(prefix = '') {
             const monthlyPayment = (propertyType === 'hdb') ? 
                 Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
     
-            // Calculate loan amount using stress test rate
+            // Calculate maximum possible loan based on property value
+            const maxPossibleLoan = propertyValue * params.MAX_LOAN_PERCENTAGE;
+    
+            // Calculate loan eligibility using stress test rate
             const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
             const monthsTotal = tenure * 12;
-            const loanAmount = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
+            const loanEligibility = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
+            
+            // Use the lower of loan eligibility and maximum possible loan
+            const finalLoanAmount = Math.min(loanEligibility, maxPossibleLoan);
     
-            // Calculate actual monthly installment
+            // Calculate actual monthly installment using the final loan amount
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyPayment = Math.abs(loanAmount * actualMonthlyRate * 
+            const actualMonthlyPayment = Math.abs(finalLoanAmount * actualMonthlyRate * 
                 Math.pow(1 + actualMonthlyRate, monthsTotal) / 
                 (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1));
     
             // Calculate loan percentage
-            const loanPercentage = Math.min((loanAmount / propertyValue) * 100, params.MAX_LOAN_PERCENTAGE * 100);
+            const loanPercentage = (finalLoanAmount / propertyValue) * 100;
     
-            // Calculate pledge funds if loan percentage < max loan percentage
+            // Only calculate pledge funds if loan eligibility is less than max possible loan
             let pledgeFundData = null;
-            if (loanPercentage < (params.MAX_LOAN_PERCENTAGE * 100)) {
-                const cappedLoanAmount = propertyValue * params.MAX_LOAN_PERCENTAGE;
-                const shortfallLoanAmount = cappedLoanAmount - loanAmount;
-                
-                // Calculate monthly shortfall using stress test rate
-                const shortfallPayment = monthlyPayment * (shortfallLoanAmount / loanAmount);
-                
-                const pledgeDivisor = propertyType === 'hdb' ? 0.3 : 0.55;
-                const pledgeFund = (shortfallPayment * 48) / pledgeDivisor;
-                const showFund = pledgeFund / 0.3;
+            if (loanEligibility < maxPossibleLoan) {
+                const shortfall = maxPossibleLoan - loanEligibility;
+                // Only proceed if there's a meaningful shortfall
+                if (shortfall > 1) { // Add a small threshold to handle floating point precision
+                    const shortfallPayment = monthlyPayment * (shortfall / loanEligibility);
+                    const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55;
+                    const pledgeFund = Math.max(0, (shortfallPayment * 48) / pledgeDivisor);
+                    const showFund = Math.max(0, pledgeFund / 0.3);
     
-                pledgeFundData = { pledgeFund, showFund };
+                    // Only set pledgeFundData if the amounts are significant
+                    if (pledgeFund > 1 && showFund > 1) {
+                        pledgeFundData = { pledgeFund, showFund };
+                    }
+                }
             }
     
             return {
                 weightedAge: this.calculateWeightedAverageAge(),
                 loanTenure: tenure,
                 propertyValue: propertyValue,
-                loanAmount: loanAmount,
+                loanAmount: finalLoanAmount,
                 monthlyInstallment: actualMonthlyPayment,
                 maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
                 pledgeFundData: pledgeFundData
@@ -564,6 +579,7 @@ updateMiscCosts(prefix = '') {
             return null;
         }
     }
+
 
     calculateLoanEligibility() {
         // Calculate results for both parameter sets
@@ -581,50 +597,79 @@ updateMiscCosts(prefix = '') {
     }
 
     initializeChart(canvasId) {
-        // Plugin for center text
         const centerTextPlugin = {
             id: 'centerText',
             afterDraw: (chart) => {
-                const { ctx, chartArea: {left, top, right, bottom}, width, height } = chart;
-                const text = chart.data.datasets[0].data[0].toFixed(2) + '% / ' + 
-                            (canvasId === 'standardLoanChart' ? '75%' : '55%');
-                
-                ctx.restore();
-                ctx.font = '15px Arial';
-                ctx.fontweight = 'bold';
-                ctx.textBaseline = 'middle';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#1EA8E0';
-                
-                // Calculate the center of the chart
+                const { ctx, chartArea: {left, top, right, bottom} } = chart;
                 const centerX = (left + right) / 2;
                 const centerY = (top + bottom) / 2;
                 
-                ctx.fillText(text, centerX, centerY);
+                const currentPercentage = chart.data.datasets[0].data[0].toFixed(2);
+                const maxPercentage = canvasId === 'standardLoanChart' ? '75' : '55';
+                
+                ctx.restore();
+                
+                // Draw current percentage (larger, primary color)
+                ctx.font = '700 24px Inter, system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#1EA8E0';
+                ctx.fillText(currentPercentage + '%', centerX, centerY - 8);
+                
+                // Draw separator line
+                ctx.beginPath();
+                ctx.moveTo(centerX - 20, centerY);
+                ctx.lineTo(centerX + 20, centerY);
+                ctx.strokeStyle = '#CBD5E1';  // Slightly darker line color
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw max percentage (smaller, secondary color)
+                ctx.font = '500 15px Inter, system-ui, sans-serif';
+                ctx.fillStyle = '#64748B';    // Darker gray for better readability
+                ctx.fillText(maxPercentage + '%', centerX, centerY + 16);
+                
                 ctx.save();
             }
         };
     
-        return new Chart(document.getElementById(canvasId), {
+        const chart = new Chart(document.getElementById(canvasId), {
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [0, 100],
+                    data: [
+                        parseFloat((this.calculateResultsWithParams(
+                            canvasId === 'standardLoanChart' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS
+                        ).loanAmount / parseFloat(document.getElementById('propertyValue').value) * 100).toFixed(2)),
+                        canvasId === 'standardLoanChart' ? 75 : 55
+                    ],
                     backgroundColor: [
-                        getComputedStyle(document.documentElement)
-                            .getPropertyValue('--highlight-color'),
-                        '#e5e7eb'
+                        '#1EA8E0',    // Primary blue for active portion
+                        '#E2E8F0'     // Darker gray for better visibility
                     ],
                     borderWidth: 0,
-                    borderRadius: 5,
-                    spacing: 2
+                    borderRadius: 12,
+                    spacing: 4,
+                    hoverOffset: 0
                 }]
             },
             options: {
-                cutout: '75%',
-                radius: '90%',
+                cutout: '85%',
+                radius: '95%',
                 responsive: true,
                 maintainAspectRatio: true,
+                rotation: 270,
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1000,
+                    easing: 'easeOutElastic'
+                },
+                hover: {
+                    mode: null
+                },
+                layout: {
+                    padding: 10
+                },
                 plugins: {
                     legend: {
                         display: false
@@ -632,28 +677,47 @@ updateMiscCosts(prefix = '') {
                     tooltip: {
                         enabled: false
                     }
-                },
-                animation: {
-                    animateRotate: true,
-                    animateScale: true
                 }
             },
             plugins: [centerTextPlugin]
         });
+    
+        // Add subtle shadow effect
+        const canvas = document.getElementById(canvasId);
+        canvas.style.filter = 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05))';
+    
+        return chart;
     }
     
     updateChart(chart, loanPercentage, maxPercentage) {
         const actualPercentage = Math.min(loanPercentage, maxPercentage);
         const remaining = maxPercentage - actualPercentage;
-        
+    
+        const animation = {
+            duration: 1000,
+            easing: 'easeOutElastic',
+            animateScale: true,
+            animateRotate: true
+        };
+    
         chart.data.datasets[0].data = [actualPercentage, remaining];
-        chart.update();
+        chart.options.rotation = 270;
+        chart.update(animation);
     }
 
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
-        const formatPercentage = (number) => `${number.toFixed(2)}%`;
+        const formatPercentage = (number) => {
+            // Round to handle floating point precision
+            const roundedNum = Math.round(number * 100) / 100;
+            // For 55% and 75%, show without decimals
+            if (roundedNum === 55 || roundedNum === 75 || number === 0.55 || number === 0.75) {
+                return `${Math.round(number)}%`;
+            }
+            // For other percentages, show with 2 decimal places
+            return `${number.toFixed(2)}%`;
+        };
         const params = type === 'standard' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS;
         this.updateMiscCosts(prefix);
         
@@ -681,41 +745,101 @@ updateMiscCosts(prefix = '') {
         const maxPercentage = params.MAX_LOAN_PERCENTAGE * 100;
         this.updateChart(chart, loanEligibilityPercentage, maxPercentage);
         
-        // Update basic results
+        // Update all basic result fields
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
         document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
         document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         
-        // Update labels and values for percentage-based fields
-        document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 
-            `Your Est.Loan Eligibility (${formatPercentage(loanEligibilityPercentage)}):`;
+        document.getElementById(`${prefix}loanEligibilityLabel`).innerHTML = 
+            `Your Est.Loan Eligibility (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(loanEligibilityPercentage)}</span>):`;
         document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(actualLoanAmount);
         
-        document.getElementById(`${prefix}minCashDownpaymentLabel`).textContent = 
-            `Minimum Cash Downpayment (${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}):`;
+        document.getElementById(`${prefix}minCashDownpaymentLabel`).innerHTML = 
+            `Minimum Cash Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}</span>):`;
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
         
-        document.getElementById(`${prefix}balanceDownpaymentLabel`).textContent = 
-            `Balance Cash/CPF Downpayment (${formatPercentage(balanceDownpaymentPercentage)}):`;
+        document.getElementById(`${prefix}balanceDownpaymentLabel`).innerHTML = 
+            `Balance Cash/CPF Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(balanceDownpaymentPercentage)}</span>):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
-
-        
+        // Handle conditional results
+        const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
+        const fundsHeader = conditionalResults.querySelector('.funds-header h3');
+        const fundsDetails = conditionalResults.querySelector('.funds-details');
     
-        // Update conditional results if they exist
-    const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
-    if (results.pledgeFundData) {
-        document.getElementById(`${prefix}pledgeFund`).textContent = 
-            formatCurrency(results.pledgeFundData.pledgeFund);
-        document.getElementById(`${prefix}showFund`).textContent = 
-            formatCurrency(results.pledgeFundData.showFund);
-        conditionalResults.classList.remove('hidden');
-    } else {
-        conditionalResults.classList.add('hidden');
-    }
-}
+        // Check if user qualifies for maximum loan
+        const qualifiesForMaxLoan = Math.abs(loanEligibilityPercentage - (params.MAX_LOAN_PERCENTAGE * 100)) < 0.01;
+    
+        if (qualifiesForMaxLoan) {
+// Update the success message HTML structure
+fundsHeader.innerHTML = `
+    <div class="success-message">
+        <span class="success-message-icon">✓</span>
+        <span class="success-message-text">
+            Congratulations! You qualify for the maximum ${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)} loan amount based on the information provided.
+        </span>
+    </div>
+`;           fundsDetails.style.display = 'none';
+        } else if (results.pledgeFundData && Object.keys(results.pledgeFundData).length > 0) {
+            // User needs pledge funds
+            fundsHeader.innerHTML = `To get maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span> Loan:`;
+            fundsDetails.style.display = 'block';
+            document.getElementById(`${prefix}pledgeFund`).textContent = 
+                formatCurrency(results.pledgeFundData.pledgeFund);
+            document.getElementById(`${prefix}showFund`).textContent = 
+                formatCurrency(results.pledgeFundData.showFund);
+        }
+    
+// Update the success message styling with mobile optimization
+if (!document.querySelector('.success-message-style')) {
+    const style = document.createElement('style');
+    style.className = 'success-message-style';
+    style.textContent = `
+        .success-message {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            color: #1EA8E0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            font-weight: 500;
+            background-color: rgba(30, 168, 224, 0.1);
+            border-radius: 0.5rem;
+            margin: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
 
+        .success-message-icon {
+            flex-shrink: 0;
+            margin-right: 0.75rem;
+            margin-top: 0.125rem;
+            color: #1EA8E0;
+        }
+
+        .success-message-text {
+            flex: 1;
+            min-width: 0; /* Ensures text wrapping works properly */
+            word-wrap: break-word;
+        }
+
+        @media (min-width: 640px) {
+            .success-message {
+                padding: 1.25rem;
+                font-size: 1rem;
+                text-align: center;
+                align-items: center;
+            }
+            
+            .success-message-icon {
+                margin-top: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+    }
     
     updatePropertyTenure(propertyType) {
         // Update both standard and alternative tenures
