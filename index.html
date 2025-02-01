@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Eligibility Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -25,7 +26,7 @@
                                 </div>
                                 <input type="number" id="propertyValue" name="propertyValue" 
                                        min="100000" required
-                                       placeholder="Enter property value" value="5000000">
+                                       placeholder="Enter property value" value="1000000">
                             </div>
                             <span class="error-message" id="propertyValueError"></span>
                         </div>
@@ -300,6 +301,9 @@
                     <span class="chart-label loan">Loan Eligibility</span>
                     <span class="chart-label remaining">Loan Shortfall</span>
                 </div>
+                <div class="ipa-button-wrapper">
+                    <button class="ipa-button" id="standardIpaButton">Get your IPA now!</button>
+                </div>
             </div>
             <div class="conditional-results" id="conditionalResults">
                 <div class="funds-header">
@@ -403,6 +407,9 @@
                     <span class="chart-label loan">Loan Eligibility</span>
                     <span class="chart-label remaining">Loan Shortfall</span>
                 </div>
+                <div class="ipa-button-wrapper">
+                    <button class="ipa-button" id="alternativeIpaButton">Get your IPA now!</button>
+                </div>
             </div>
             <div class="conditional-results" id="alt-conditionalResults">
                 <div class="funds-header">
@@ -452,6 +459,52 @@
 </div>
         </div>
     </div>
-    <script src="calculator.js"></script>
+    <!-- IPA Form Modal -->
+<div id="ipaModal" class="ipa-modal">
+    <div class="ipa-modal-content">
+        <span class="ipa-close">&times;</span>
+        <div class="ipa-header">Get Your In-Principle-Approval</div>
+        <p class="ipa-subtitle">Protect your purchase with a free and non-obligatory<br>In-Principle-Approval (IPA)!</p>
+        <p class="ipa-subtitle">Let us help you take the first step - it's free and easy</p>
+        
+        <form id="ipaForm" class="ipa-form">
+            <div class="ipa-input-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter Your Name" required>
+                <span class="ipa-error" id="nameError"></span>
+            </div>
+            
+            <div class="ipa-input-group">
+                <label for="emailAddress">Email Address</label>
+                <input type="email" id="emailAddress" name="emailAddress" placeholder="Enter Email Address" required>
+                <span class="ipa-error" id="emailError"></span>
+            </div>
+            
+            <div class="ipa-input-group">
+                <label for="mobileNumber">Mobile Number</label>
+                <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="Enter Mobile Number" required>
+                <span class="ipa-error" id="mobileError"></span>
+            </div>
+            
+            <button type="submit" class="ipa-submit">Submit</button>
+        </form>
+    </div>
+</div>
+<!-- Toast Notification -->
+<div id="notification" class="notification">
+    <div class="notification-content">
+        <div class="notification-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
+            </svg>
+        </div>
+        <div class="notification-message">
+            <div class="notification-title">Success!</div>
+            <div class="notification-description">Thank you for your submission. Our team will contact you shortly.</div>
+        </div>
+    </div>
+</div>
+    <script src="Js/calculator.js" defer></script>
+    <script src="Js/modal.js"></script>
 </body>
 </html>
