@@ -233,11 +233,13 @@ input[type="radio"]:checked ~ .radio-text {
 }
 
 .helper-text {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-light);
-    line-height: 1.4;
+    font-size: 0.775rem;  /* 14px */
+    color: var(--text-light);       /* Gray-500 */
+    font-style: italic;
+    margin-top: -12px;
+    margin-bottom: 8px;
 }
+
 
 /* Error States */
 .error-message {

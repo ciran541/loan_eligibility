@@ -69,6 +69,7 @@ class LoanCalculator {
         this.touchedFields = new Set();
 
         this.initializeFormState();
+        this.updateBorrowerTitles();
         this.initializeEventListeners();
         this.calculateLoanEligibility();
         this.initializeNoaLabels();
@@ -80,6 +81,17 @@ class LoanCalculator {
             this.updateNoaLabel(borrower);
         });
     }
+
+    // Add new method for title updates
+    updateBorrowerTitles() {
+        const isSingle = document.querySelector('input[name="borrowerCount"][value="single"]').checked;
+        const borrower1Title = document.querySelector('#borrower1Details h2');
+        
+        if (borrower1Title) {
+            borrower1Title.textContent = isSingle ? 'Income Details' : 'Borrower 1\'s Income Details';
+        }
+    }
+
 
     // new method to update NOA label
     updateNoaLabel(borrower) {
@@ -201,6 +213,9 @@ class LoanCalculator {
     toggleBorrower2Fields() {
         const isSingle = document.querySelector('input[name="borrowerCount"][value="single"]').checked;
         this.borrower2Section.classList.toggle('hidden', isSingle);
+        
+        // Update section titles
+        this.updateBorrowerTitles();
         
         // Update required attributes for Borrower 2 fields
         this.borrower2Section.querySelectorAll('input').forEach(input => {
