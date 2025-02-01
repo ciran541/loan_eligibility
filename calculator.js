@@ -174,6 +174,16 @@ class LoanCalculator {
                 }
             });
         });
+        // Add this new code for residency status changes
+    ['borrower1', 'borrower2'].forEach(borrower => {
+        document.querySelectorAll(`input[name="${borrower}ResidencyStatus"]`).forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (this.validateForm()) {
+                    this.calculateLoanEligibility();
+                }
+            });
+        });
+    });
 
         // Add this to the property type event listeners
     document.querySelectorAll('input[name="propertyType"]').forEach(radio => {
@@ -604,7 +614,7 @@ updateMiscCosts(prefix = '') {
                 const centerX = (left + right) / 2;
                 const centerY = (top + bottom) / 2;
                 
-                const currentPercentage = chart.data.datasets[0].data[0].toFixed(2);
+                const currentPercentage = chart.data.datasets[0].data[1].toFixed(2);
                 const maxPercentage = canvasId === 'standardLoanChart' ? '75' : '55';
                 
                 ctx.restore();
@@ -619,13 +629,13 @@ updateMiscCosts(prefix = '') {
                 ctx.beginPath();
                 ctx.moveTo(centerX - 20, centerY);
                 ctx.lineTo(centerX + 20, centerY);
-                ctx.strokeStyle = '#CBD5E1';  // Slightly darker line color
+                ctx.strokeStyle = '#CBD5E1';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
                 // Draw max percentage (smaller, secondary color)
                 ctx.font = '500 15px Inter, system-ui, sans-serif';
-                ctx.fillStyle = '#64748B';    // Darker gray for better readability
+                ctx.fillStyle = '#64748B';
                 ctx.fillText(maxPercentage + '%', centerX, centerY + 16);
                 
                 ctx.save();
@@ -637,14 +647,14 @@ updateMiscCosts(prefix = '') {
             data: {
                 datasets: [{
                     data: [
+                        canvasId === 'standardLoanChart' ? 75 : 55,
                         parseFloat((this.calculateResultsWithParams(
                             canvasId === 'standardLoanChart' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS
-                        ).loanAmount / parseFloat(document.getElementById('propertyValue').value) * 100).toFixed(2)),
-                        canvasId === 'standardLoanChart' ? 75 : 55
+                        ).loanAmount / parseFloat(document.getElementById('propertyValue').value) * 100).toFixed(2))
                     ],
                     backgroundColor: [
-                        '#1EA8E0',    // Primary blue for active portion
-                        '#E2E8F0'     // Darker gray for better visibility
+                        'rgba(230, 80, 60, 0.75)',
+                        '#1EA8E0'
                     ],
                     borderWidth: 0,
                     borderRadius: 12,
@@ -657,7 +667,8 @@ updateMiscCosts(prefix = '') {
                 radius: '95%',
                 responsive: true,
                 maintainAspectRatio: true,
-                rotation: 270,
+                rotation: 90, // Changed to 90 to start from top
+                circumference: 360,
                 animation: {
                     animateScale: true,
                     animateRotate: true,
@@ -700,11 +711,10 @@ updateMiscCosts(prefix = '') {
             animateRotate: true
         };
     
-        chart.data.datasets[0].data = [actualPercentage, remaining];
-        chart.options.rotation = 270;
+        chart.data.datasets[0].data = [remaining, actualPercentage];
+        chart.options.rotation = 0; // Changed to match initializeChart
         chart.update(animation);
     }
-
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
@@ -739,6 +749,9 @@ updateMiscCosts(prefix = '') {
         
         // Calculate balance downpayment percentage
         const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - loanEligibilityPercentage;
+    
+        // Calculate loan shortfall
+        const loanShortfall = maxBankLoan - actualLoanAmount;
         
         // Update chart
         const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
@@ -763,6 +776,7 @@ updateMiscCosts(prefix = '') {
         document.getElementById(`${prefix}balanceDownpaymentLabel`).innerHTML = 
             `Balance Cash/CPF Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(balanceDownpaymentPercentage)}</span>):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
+    
         // Handle conditional results
         const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
         const fundsHeader = conditionalResults.querySelector('.funds-header h3');
@@ -772,18 +786,26 @@ updateMiscCosts(prefix = '') {
         const qualifiesForMaxLoan = Math.abs(loanEligibilityPercentage - (params.MAX_LOAN_PERCENTAGE * 100)) < 0.01;
     
         if (qualifiesForMaxLoan) {
-// Update the success message HTML structure
-fundsHeader.innerHTML = `
-    <div class="success-message">
-        <span class="success-message-icon">✓</span>
-        <span class="success-message-text">
-            Congratulations! You qualify for the maximum ${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)} loan amount based on the information provided.
-        </span>
-    </div>
-`;           fundsDetails.style.display = 'none';
+            fundsHeader.innerHTML = `
+                <div class="success-message">
+                    <span class="success-message-icon">✓</span>
+                    <span class="success-message-text">
+                        Congratulations! You qualify for the maximum ${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)} loan amount based on the information provided.
+                    </span>
+                </div>
+            `;
+            fundsDetails.style.display = 'none';
         } else if (results.pledgeFundData && Object.keys(results.pledgeFundData).length > 0) {
-            // User needs pledge funds
-            fundsHeader.innerHTML = `To get maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span> Loan:`;
+            fundsHeader.innerHTML = `
+                <div class="shortfall-info">
+                    <div class="shortfall-line">
+                        Loan Shortfall: <span class="shortfall-amount">${formatCurrency(loanShortfall)}</span>
+                    </div>
+                    <div class="loan-header">
+                        In order to loan the maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span>:
+                    </div>
+                </div>
+            `;
             fundsDetails.style.display = 'block';
             document.getElementById(`${prefix}pledgeFund`).textContent = 
                 formatCurrency(results.pledgeFundData.pledgeFund);
@@ -791,54 +813,87 @@ fundsHeader.innerHTML = `
                 formatCurrency(results.pledgeFundData.showFund);
         }
     
-// Update the success message styling with mobile optimization
-if (!document.querySelector('.success-message-style')) {
-    const style = document.createElement('style');
-    style.className = 'success-message-style';
-    style.textContent = `
-        .success-message {
-            padding: 1rem 0.75rem;
-            text-align: left;
-            color: #1EA8E0;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            font-weight: 500;
-            background-color: rgba(30, 168, 224, 0.1);
-            border-radius: 0.5rem;
-            margin: 0.75rem 0;
-            display: flex;
-            align-items: flex-start;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        // Add styles
+        if (!document.querySelector('.calculator-styles')) {
+            const style = document.createElement('style');
+            style.className = 'calculator-styles';
+            style.textContent = `
+                .shortfall-info {
+                    padding: 0 0 1.5rem 0;
+                    font-size: 0.9375rem;
+                    line-height: 1.5;
+                }
+    
+                .shortfall-line {
+                    color: #374151;
+                    font-weight: 500;
+                    margin-bottom: 0.25rem;
+                    font-size: 1rem;
+                }
+    
+                .shortfall-amount {
+                    color: #EF4444;
+                    font-weight: 600;
+                }
+    
+                .loan-header {
+                    color: #374151;
+                    font-weight: 500;
+                    font-size: 1rem;
+                }
+    
+                .highlight-text {
+                    color: #1EA8E0;
+                    font-weight: inherit;
+                }
+    
+                .success-message {
+                    padding: 1rem 0.75rem;
+                    text-align: left;
+                    color: #1EA8E0;
+                    font-size: 0.875rem;
+                    line-height: 1.5;
+                    font-weight: 500;
+                    background-color: rgba(30, 168, 224, 0.1);
+                    border-radius: 0.5rem;
+                    margin: 0.75rem 0;
+                    display: flex;
+                    align-items: flex-start;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                }
+    
+                .success-message-icon {
+                    flex-shrink: 0;
+                    margin-right: 0.75rem;
+                    margin-top: 0.125rem;
+                    color: #1EA8E0;
+                }
+    
+                .success-message-text {
+                    flex: 1;
+                    min-width: 0;
+                    word-wrap: break-word;
+                }
+    
+                @media (min-width: 640px) {
+                    .success-message {
+                        padding: 1.25rem;
+                        font-size: 1rem;
+                        text-align: center;
+                        align-items: center;
+                    }
+                    
+                    .success-message-icon {
+                        margin-top: 0;
+                    }
+    
+                    .shortfall-info {
+                        font-size: 1rem;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         }
-
-        .success-message-icon {
-            flex-shrink: 0;
-            margin-right: 0.75rem;
-            margin-top: 0.125rem;
-            color: #1EA8E0;
-        }
-
-        .success-message-text {
-            flex: 1;
-            min-width: 0; /* Ensures text wrapping works properly */
-            word-wrap: break-word;
-        }
-
-        @media (min-width: 640px) {
-            .success-message {
-                padding: 1.25rem;
-                font-size: 1rem;
-                text-align: center;
-                align-items: center;
-            }
-            
-            .success-message-icon {
-                margin-top: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-}
     }
     
     updatePropertyTenure(propertyType) {
