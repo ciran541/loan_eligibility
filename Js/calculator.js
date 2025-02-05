@@ -1010,3 +1010,26 @@ updateMiscCosts(prefix = '') {
 document.addEventListener('DOMContentLoaded', () => {
     new LoanCalculator();
 });
+
+window.addEventListener('load', function() {
+    // Function to send height to parent
+    function sendHeight() {
+        window.parent.postMessage({
+            type: 'setHeight',
+            height: document.documentElement.scrollHeight
+        }, '*');
+    }
+
+    // Send height when content changes
+    const observer = new MutationObserver(sendHeight);
+    
+    // Watch for DOM changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Also send height on load and resize
+    window.addEventListener('resize', sendHeight);
+    sendHeight();
+});
