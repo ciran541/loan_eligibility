@@ -113,8 +113,8 @@
                         <div class="form-group" id="borrower1BasicSalaryGroup">
                             <label for="borrower1BasicSalary">Basic Monthly Salary (SGD)</label>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-dollar-sign"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower1BasicSalary" name="borrower1BasicSalary" 
                                        min="0" placeholder="Enter basic salary" value="3000">
@@ -125,8 +125,8 @@
                         <div class="form-group" id="borrower1NoaGroup">
                             <label for="borrower1NOA" id="borrower1NoaLabel">Annual Bonus (SGD)</label>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-file-invoice-dollar"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower1NOA" name="borrower1NOA" 
                                        min="0" placeholder="Enter amount" value="10000">
@@ -138,8 +138,8 @@
                             <label for="borrower1Commitments">Monthly Financial Commitments (SGD)</label>
                             <div class="helper-text">Eg. Car loan, Credit Card Instalments</div>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-credit-card"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower1Commitments" name="borrower1Commitments" 
                                        min="0" required
@@ -179,7 +179,7 @@
                                 </div>
                                 <input type="number" id="borrower2Age" name="borrower2Age" 
                                        min="18" max="65"
-                                       placeholder="Enter age">
+                                       placeholder="Enter age" value="25">
                             </div>
                             <span class="error-message" id="borrower2AgeError"></span>
                         </div>
@@ -203,11 +203,11 @@
                         <div class="form-group" id="borrower2BasicSalaryGroup">
                             <label for="borrower2BasicSalary">Basic Monthly Salary (SGD)</label>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-dollar-sign"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower2BasicSalary" name="borrower2BasicSalary" 
-                                       min="0" placeholder="Enter basic salary">
+                                       min="0" placeholder="Enter basic salary" value="0">
                             </div>
                             <span class="error-message" id="borrower2BasicSalaryError"></span>
                         </div>
@@ -215,11 +215,11 @@
                         <div class="form-group" id="borrower2NoaGroup">
                             <label for="borrower2NOA" id="borrower2NoaLabel">Annual Bonus (SGD)</label>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-file-invoice-dollar"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower2NOA" name="borrower2NOA" 
-                                       min="0" placeholder="Enter amount">
+                                       min="0" placeholder="Enter amount" value="0">
                             </div>
                             <span class="error-message" id="borrower2NOAError"></span>
                         </div>
@@ -228,11 +228,11 @@
                             <label for="borrower2Commitments">Monthly Financial Commitments (SGD)</label>
                             <div class="helper-text">Eg. Car loan, Credit Card Instalments</div>
                             <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-credit-card"></i>
+                                <div class="input-icon font-semibold text-primary">
+                                    SGD
                                 </div>
                                 <input type="number" id="borrower2Commitments" name="borrower2Commitments" 
-                                       min="0" placeholder="Enter monthly commitments">
+                                       min="0" placeholder="Enter monthly commitments" value="0">
                             </div>
                             <span class="error-message" id="borrower2CommitmentsError"></span>
                         </div>
@@ -264,16 +264,9 @@
                 <label>Target Property Price:</label>
                 <span id="targetPrice">-</span>
             </div>
+            
             <div class="result-item">
-                <label>Maximum Loan-To-Valuation (LTV-75%):</label>
-                <span id="maxBankLoan">-</span>
-            </div>
-            <div class="result-item">
-                <label>Income Weighted Average Age:</label>
-                <span id="weightedAge">-</span>
-            </div>
-            <div class="result-item">
-                <label id="loanEligibilityLabel">Your Est.Loan Eligibility (0.00%):</label>
+                <label id="loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
                 <span id="loanEligibility">-</span>
             </div>
             <div class="result-item">
@@ -285,7 +278,7 @@
                 <span id="minCashDownpayment">-</span>
             </div>
             <div class="result-item">
-                <label>Monthly Installment:</label>
+                <label>Monthly Instalment:</label>
                 <span id="monthlyInstallment">-</span>
                 <span class="reference-rate">Reference Rate: 2.5% p.a</span>
             </div>
@@ -370,16 +363,9 @@
                 <label>Target Property Price:</label>
                 <span id="alt-targetPrice">-</span>
             </div>
+            
             <div class="result-item">
-                <label>Maximum Loan-To-Valuation (LTV-55%):</label>
-                <span id="alt-maxBankLoan">-</span>
-            </div>
-            <div class="result-item">
-                <label>Income Weighted Average Age:</label>
-                <span id="alt-weightedAge">-</span>
-            </div>
-            <div class="result-item">
-                <label id="alt-loanEligibilityLabel">Your Est.Loan Eligibility (0.00%):</label>
+                <label id="alt-loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
                 <span id="alt-loanEligibility">-</span>
             </div>
             <div class="result-item">
@@ -391,7 +377,7 @@
                 <span id="alt-minCashDownpayment">-</span>
             </div>
             <div class="result-item">
-                <label>Monthly Installment:</label>
+                <label>Monthly Instalment:</label>
                 <span id="alt-monthlyInstallment">-</span>
                 <span class="reference-rate">Reference Rate: 2.5% p.a</span>
             </div>

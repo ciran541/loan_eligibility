@@ -622,6 +622,14 @@ updateMiscCosts(prefix = '') {
     }
 
     initializeChart(canvasId) {
+        const formatCurrency = (value) => {
+            return `$ ${Math.floor(value).toLocaleString()}`;
+        };
+    
+        // Determine if this is the standard or alternative chart based on canvas ID
+        const isStandard = canvasId === 'standardLoanChart';
+        const percentage = isStandard ? '(75%)' : '(55%)';
+    
         const centerTextPlugin = {
             id: 'centerText',
             afterDraw: (chart) => {
@@ -629,29 +637,35 @@ updateMiscCosts(prefix = '') {
                 const centerX = (left + right) / 2;
                 const centerY = (top + bottom) / 2;
                 
-                const currentPercentage = chart.data.datasets[0].data[1].toFixed(2);
-                const maxPercentage = canvasId === 'standardLoanChart' ? '75' : '55';
+                // Get actual monetary values instead of percentages
+                const currentAmount = chart.data.datasets[0].data[1];
+                const maxAmount = chart.data.datasets[0].data[0] + currentAmount;
                 
                 ctx.restore();
                 
-                // Draw current percentage (larger, primary color)
-                ctx.font = '700 24px Inter, system-ui, sans-serif';
+                // Draw current amount (larger, primary color)
+                ctx.font = '700 20px Inter, system-ui, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#1EA8E0';
-                ctx.fillText(currentPercentage + '%', centerX, centerY - 8);
+                ctx.fillText(formatCurrency(currentAmount), centerX, centerY - 20);
                 
                 // Draw separator line
                 ctx.beginPath();
-                ctx.moveTo(centerX - 20, centerY);
-                ctx.lineTo(centerX + 20, centerY);
+                ctx.moveTo(centerX - 40, centerY - 4);
+                ctx.lineTo(centerX + 40, centerY - 4);
                 ctx.strokeStyle = '#CBD5E1';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
-                // Draw max percentage (smaller, secondary color)
-                ctx.font = '500 15px Inter, system-ui, sans-serif';
+                // Draw max amount (smaller, secondary color)
+                ctx.font = '500 14px Inter, system-ui, sans-serif';
                 ctx.fillStyle = '#64748B';
-                ctx.fillText(maxPercentage + '%', centerX, centerY + 16);
+                ctx.fillText(formatCurrency(maxAmount), centerX, centerY + 16);
+                
+                // Draw structure percentage
+                ctx.font = '500 12px Inter, system-ui, sans-serif';
+                ctx.fillStyle = '#64748B';
+                ctx.fillText(percentage, centerX, centerY + 32);
                 
                 ctx.save();
             }
@@ -661,12 +675,7 @@ updateMiscCosts(prefix = '') {
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [
-                        canvasId === 'standardLoanChart' ? 75 : 55,
-                        parseFloat((this.calculateResultsWithParams(
-                            canvasId === 'standardLoanChart' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS
-                        ).loanAmount / parseFloat(document.getElementById('propertyValue').value) * 100).toFixed(2))
-                    ],
+                    data: [0, 0],
                     backgroundColor: [
                         'rgba(230, 80, 60, 0.75)',
                         '#1EA8E0'
@@ -682,7 +691,7 @@ updateMiscCosts(prefix = '') {
                 radius: '95%',
                 responsive: true,
                 maintainAspectRatio: true,
-                rotation: 90, // Changed to 90 to start from top
+                rotation: 90,
                 circumference: 360,
                 animation: {
                     animateScale: true,
@@ -694,14 +703,75 @@ updateMiscCosts(prefix = '') {
                     mode: null
                 },
                 layout: {
-                    padding: 10
+                    padding: 20
                 },
                 plugins: {
                     legend: {
                         display: false
                     },
                     tooltip: {
-                        enabled: false
+                        enabled: false,
+                        external: (context) => {
+                            // Remove previous tooltip
+                            const tooltipEl = document.getElementById('chartjs-tooltip');
+                            if (tooltipEl) {
+                                tooltipEl.remove();
+                            }
+    
+                            // Abort if no tooltip
+                            const tooltipModel = context.tooltip;
+                            if (tooltipModel.opacity === 0) {
+                                return;
+                            }
+    
+                            // Create new tooltip div
+                            const newTooltipEl = document.createElement('div');
+                            newTooltipEl.id = 'chartjs-tooltip';
+    
+                            // Set tooltip content
+                            const value = tooltipModel.dataPoints[0].raw;
+                            newTooltipEl.innerHTML = formatCurrency(value);
+    
+                            // Position tooltip
+                            const position = context.chart.canvas.getBoundingClientRect();
+                            
+                            // Calculate center of the chart
+                            const chartCenterX = position.left + position.width / 2;
+                            const chartCenterY = position.top + position.height / 2;
+                            
+                            // Calculate angle for current segment
+                            const dataIndex = tooltipModel.dataPoints[0].dataIndex;
+                            const dataset = context.chart.data.datasets[0];
+                            const total = dataset.data.reduce((a, b) => a + b, 0);
+                            
+                            // Start from -90 degrees (top) and adjust for rotation
+                            const startAngle = -Math.PI/2 + dataset.data
+                                .slice(0, dataIndex)
+                                .reduce((a, b) => a + (b / total) * Math.PI * 2, 0);
+                                
+                            // Get the middle angle of the segment
+                            const segmentAngle = (dataset.data[dataIndex] / total) * Math.PI * 2;
+                            const angle = startAngle + (segmentAngle / 2);
+                            
+                            // Position tooltip outside the chart
+                            const radius = position.width / 2 + 20; // 20px outside the chart
+                            const tooltipX = chartCenterX + Math.cos(angle) * radius;
+                            const tooltipY = chartCenterY + Math.sin(angle) * radius;
+    
+                            // Add styles to tooltip
+                            newTooltipEl.style.backgroundColor = 'white';
+                            newTooltipEl.style.padding = '8px 12px';
+                            newTooltipEl.style.border = '1px solid #ddd';
+                            newTooltipEl.style.borderRadius = '4px';
+                            newTooltipEl.style.position = 'absolute';
+                            newTooltipEl.style.transform = 'translate(-50%, -50%)';
+                            newTooltipEl.style.left = tooltipX + 'px';
+                            newTooltipEl.style.top = tooltipY + 'px';
+                            newTooltipEl.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+    
+                            // Add tooltip to document
+                            document.body.appendChild(newTooltipEl);
+                        }
                     }
                 }
             },
@@ -715,10 +785,7 @@ updateMiscCosts(prefix = '') {
         return chart;
     }
     
-    updateChart(chart, loanPercentage, maxPercentage) {
-        const actualPercentage = Math.min(loanPercentage, maxPercentage);
-        const remaining = maxPercentage - actualPercentage;
-    
+    updateChart(chart, loanAmount, maxAmount) {
         const animation = {
             duration: 1000,
             easing: 'easeOutElastic',
@@ -726,10 +793,15 @@ updateMiscCosts(prefix = '') {
             animateRotate: true
         };
     
-        chart.data.datasets[0].data = [remaining, actualPercentage];
-        chart.options.rotation = 0; // Changed to match initializeChart
+        // Calculate the shortfall (difference between max and current)
+        const shortfall = maxAmount - loanAmount;
+    
+        // Update with actual monetary values
+        chart.data.datasets[0].data = [shortfall, loanAmount];
+        chart.options.rotation = 0;
         chart.update(animation);
     }
+    
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
@@ -769,19 +841,19 @@ updateMiscCosts(prefix = '') {
         const loanShortfall = maxBankLoan - actualLoanAmount;
         
         // Update chart
-        const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
-        const maxPercentage = params.MAX_LOAN_PERCENTAGE * 100;
-        this.updateChart(chart, loanEligibilityPercentage, maxPercentage);
+          // Update chart with actual monetary values instead of percentages
+    const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
+    this.updateChart(chart, actualLoanAmount, maxBankLoan);
         
         // Update all basic result fields
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
-        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
-        document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
+        // document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
+        // document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         
         document.getElementById(`${prefix}loanEligibilityLabel`).innerHTML = 
-            `Your Est.Loan Eligibility (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(loanEligibilityPercentage)}</span>):`;
+            `Estimated Loan Eligibility (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(loanEligibilityPercentage)}</span>):`;
         document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(actualLoanAmount);
         
         document.getElementById(`${prefix}minCashDownpaymentLabel`).innerHTML = 
@@ -817,7 +889,7 @@ updateMiscCosts(prefix = '') {
                         Loan Shortfall: <span class="shortfall-amount">${formatCurrency(loanShortfall)}</span>
                     </div>
                     <div class="loan-header">
-                        In order to loan the maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span>:
+                        To loan the maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span> either:
                     </div>
                 </div>
             `;

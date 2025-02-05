@@ -273,6 +273,51 @@ input.error + .error-message {
     box-shadow: var(--shadow-md);
 }
 
+/* Mobile-only heading */
+.mobile-affordability-heading {
+    display: none;  /* Hidden by default on desktop */
+    color: #052048;
+    font-size: 1.17em;
+    text-align: center;
+    padding: 1rem 0;
+    margin: 0;
+}
+
+/* Mobile view adjustments */
+@media screen and (max-width: 767px) {
+    /* Show heading on mobile */
+    .mobile-affordability-heading {
+        display: block;
+    }
+    
+    /* Reduce extra spacing */
+    .form-group {
+        margin-bottom: 1rem;  /* Reduced from 2rem */
+    }
+    
+    .form-section {
+        margin-bottom: 1rem;  /* Reduced from 1.5rem */
+        padding-bottom: 0.5rem;  /* Reduced from 1rem */
+        border-bottom: none;  /* Remove border to reduce visual spacing */
+    }
+
+    /* Adjust mobile heading spacing */
+    .mobile-affordability-heading {
+        margin: 0.5rem 0;  /* Reduced from 1rem */
+        padding: 0.5rem 0;  /* Reduced from 1rem */
+    }
+
+    /* Reduce space above Structure 1 section */
+    .results-container {
+        margin-top: 0.5rem;  /* Added to reduce space from heading */
+    }
+
+    /* Remove any extra margins from the last form field */
+    .form-group:last-child {
+        margin-bottom: 0.5rem;  /* Reduced from 1rem */
+    }
+}
+
 /* Results Header and Package Details */
 .results-header {
     margin-bottom: 1.5rem;
@@ -338,8 +383,46 @@ input.error + .error-message {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
+    grid-template-areas:
+        "target-price loan-eligibility"
+        "loan-tenure monthly-installment"
+        "min-cash balance-downpayment";
 }
 
+/* Grid area assignments */
+.result-item:has(#targetPrice),
+.result-item:has(#alt-targetPrice) { grid-area: target-price; }
+
+.result-item:has(#loanTenure),
+.result-item:has(#alt-loanTenure) { grid-area: loan-tenure; }
+
+.result-item:has(#monthlyInstallment),
+.result-item:has(#alt-monthlyInstallment) { grid-area: monthly-installment; }
+
+.result-item:has(#loanEligibility),
+.result-item:has(#alt-loanEligibility) { grid-area: loan-eligibility; }
+
+.result-item:has(#minCashDownpayment),
+.result-item:has(#alt-minCashDownpayment) { grid-area: min-cash; }
+
+.result-item:has(#balanceDownpayment),
+.result-item:has(#alt-balanceDownpayment) { grid-area: balance-downpayment; }
+
+/* Mobile view */
+@media screen and (max-width: 767px) {
+    .results-content {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "target-price"
+            "loan-tenure"
+            "monthly-installment"
+            "loan-eligibility"
+            "min-cash"
+            "balance-downpayment";
+    }
+}
+
+/* Keep all your existing styles unchanged */
 .result-item {
     padding: 1.5rem;
     background-color: var(--input-bg);
@@ -377,7 +460,7 @@ input.error + .error-message {
     font-style: italic;
 }
 
-/* Animations */
+/* Keep your animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -700,7 +783,7 @@ input:focus-visible,
     margin: 1rem 0;
     position: relative;
     color: #9ca3af;
-    font-size: 0.875rem;
+    font-size: 1.2rem;
 }
 
 .funds-separator::before,
@@ -925,7 +1008,7 @@ input:focus-visible,
 
 .funds-separator {
     text-align: center;
-    font-weight: 500;
+    font-weight: 600;
     margin: 1rem 0;
     position: relative;
 }
