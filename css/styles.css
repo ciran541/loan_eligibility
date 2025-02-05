@@ -102,7 +102,7 @@ h2::after {
 
 /* Form Groups */
 .form-group {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     animation: slideIn 0.3s ease-out;
 }
 
@@ -183,9 +183,9 @@ input[type="text"]:focus {
     cursor: pointer;
     flex: 1;
     padding: 0.75rem 1rem;
-    background-color: var(--input-bg);
+    /* background-color: var(--input-bg);
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+    border-radius: 0.5rem; */
     transition: var(--transition);
     min-width: 100px;
     max-width: fit-content;
@@ -309,7 +309,7 @@ input.error + .error-message {
 
     /* Reduce space above Structure 1 section */
     .results-container {
-        margin-top: 0.5rem;  /* Added to reduce space from heading */
+        margin-top: -0.5rem;  /* Added to reduce space from heading */
     }
 
     /* Remove any extra margins from the last form field */
