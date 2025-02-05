@@ -527,9 +527,9 @@ input.error + .error-message {
 }
 
 @media screen and (max-width: 767px) {
-    .container {
+    /* .container {
         padding: 1rem;
-    }
+    } */
 
     .form-container,
     .results-container {
