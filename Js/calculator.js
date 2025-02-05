@@ -1013,11 +1013,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Add this to your calculator application
 window.addEventListener('load', function() {
-    setInterval(function() {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({
-            type: 'setHeight',
-            height: height
-        }, '*');
-    }, 500);
+    let lastHeight = 0;
+    
+    function sendHeight() {
+        const currentHeight = document.documentElement.scrollHeight;
+        
+        // Only send message if height has changed
+        if (currentHeight !== lastHeight) {
+            lastHeight = currentHeight;
+            window.parent.postMessage({
+                type: 'setHeight',
+                height: currentHeight
+            }, '*');
+        }
+    }
+    
+    // Create observer for content changes
+    const resizeObserver = new ResizeObserver(sendHeight);
+    
+    // Observe both body and documentElement for size changes
+    resizeObserver.observe(document.body);
+    resizeObserver.observe(document.documentElement);
+    
+    // Also watch for DOM changes
+    const mutationObserver = new MutationObserver(sendHeight);
+    mutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true
+    });
+    
+    // Initial height send
+    sendHeight();
+    
+    // Also check periodically for any dynamic content changes
+    setInterval(sendHeight, 100);
 });
