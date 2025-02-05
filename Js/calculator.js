@@ -1010,3 +1010,14 @@ updateMiscCosts(prefix = '') {
 document.addEventListener('DOMContentLoaded', () => {
     new LoanCalculator();
 });
+
+// Add this to your calculator application
+window.addEventListener('load', function() {
+    setInterval(function() {
+        const height = document.documentElement.scrollHeight;
+        window.parent.postMessage({
+            type: 'setHeight',
+            height: height
+        }, '*');
+    }, 500);
+});
