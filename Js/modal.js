@@ -31,6 +31,31 @@ class IpaModal {
         
         // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+        // Handle mobile viewport adjustments
+        if (this.isInIframe) {
+            window.addEventListener('resize', () => {
+                if (this.modal.style.display === 'block') {
+                    this.adjustModalPosition();
+                }
+            });
+        }
+    }
+
+    adjustModalPosition() {
+        if (window.innerWidth <= 768) { // Mobile view
+            this.modal.style.top = '0';
+            this.modal.style.height = '100%';
+            this.modal.style.overflow = 'auto';
+            
+            // Ensure modal content is visible
+            const modalContent = this.modal.querySelector('.ipa-modal-content');
+            if (modalContent) {
+                modalContent.style.marginTop = '20px';
+                modalContent.style.marginBottom = '20px';
+                modalContent.style.maxHeight = 'none';
+            }
+        }
     }
 
     openModal() {
@@ -40,21 +65,14 @@ class IpaModal {
                 headerText.textContent = this.selectedStructure;
             }
             
-            // Tell parent to adjust positioning
             window.parent.postMessage({
-                type: 'showModal',
-                position: {
-                    top: window.pageYOffset
-                }
+                type: 'showModal'
             }, '*');
             
-            // Show modal in iframe
             this.modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            this.adjustModalPosition();
         } else {
-            // Original behavior for direct viewing
             this.modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
         }
     }
 
@@ -66,7 +84,6 @@ class IpaModal {
         }
         
         this.modal.style.display = 'none';
-        document.body.style.overflow = '';
         this.form.reset();
         this.clearErrors();
     }

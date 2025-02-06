@@ -127,13 +127,18 @@
 /* Mobile Optimizations */
 @media screen and (max-width: 640px) {
     .ipa-modal {
-        padding-top: 60px; /* Less padding on mobile */
+        padding-top: 0;
+        display: flex;
+        align-items: flex-start;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .ipa-modal-content {
-        width: 95%;
-        padding: 1.25rem;
-        margin: 0 auto;
+        margin: 20px auto;
+        width: 90%;
+        max-width: none;
+        position: relative;
     }
 
     .ipa-header {
