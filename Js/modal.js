@@ -8,13 +8,11 @@ class IpaModal {
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
         
-        // Ensure modal is hidden on initialization
-        this.modal.style.display = 'none';
-        
         this.initializeEvents();
     }
 
     initializeEvents() {
+        // Open modal events
         this.standardIpaButton.addEventListener('click', () => {
             this.selectedStructure = 'Structure 1 (75% LTV)';
             this.openModal();
@@ -25,28 +23,57 @@ class IpaModal {
             this.openModal();
         });
         
+        // Close modal events
         this.closeBtn.addEventListener('click', () => this.closeModal());
-        this.modal.addEventListener('click', (e) => {
+        window.addEventListener('click', (e) => {
             if (e.target === this.modal) this.closeModal();
         });
         
+        // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+        // Handle mobile viewport adjustments
+        if (this.isInIframe) {
+            window.addEventListener('resize', () => {
+                if (this.modal.style.display === 'block') {
+                    this.adjustModalPosition();
+                }
+            });
+        }
+    }
+
+    adjustModalPosition() {
+        if (window.innerWidth <= 768) { // Mobile view
+            this.modal.style.top = '0';
+            this.modal.style.height = '100%';
+            this.modal.style.overflow = 'auto';
+            
+            // Ensure modal content is visible
+            const modalContent = this.modal.querySelector('.ipa-modal-content');
+            if (modalContent) {
+                modalContent.style.marginTop = '20px';
+                modalContent.style.marginBottom = '20px';
+                modalContent.style.maxHeight = 'none';
+            }
+        }
     }
 
     openModal() {
-        const headerText = document.querySelector('.ipa-header');
-        if (headerText) {
-            headerText.textContent = this.selectedStructure;
-        }
-
         if (this.isInIframe) {
+            const headerText = document.querySelector('.ipa-header');
+            if (headerText) {
+                headerText.textContent = this.selectedStructure;
+            }
+            
             window.parent.postMessage({
                 type: 'showModal'
             }, '*');
+            
+            this.modal.style.display = 'block';
+            this.adjustModalPosition();
+        } else {
+            this.modal.style.display = 'block';
         }
-
-        this.modal.classList.add('show-modal');
-        this.modal.style.display = 'flex';
     }
 
     closeModal() {
@@ -56,7 +83,6 @@ class IpaModal {
             }, '*');
         }
         
-        this.modal.classList.remove('show-modal');
         this.modal.style.display = 'none';
         this.form.reset();
         this.clearErrors();
@@ -68,11 +94,13 @@ class IpaModal {
         const email = document.getElementById('emailAddress');
         const mobile = document.getElementById('mobileNumber');
 
+        // Name validation
         if (!name.value.trim()) {
             this.showError(name, 'nameError', 'Name is required');
             isValid = false;
         }
 
+        // Email validation
         if (!email.value.trim()) {
             this.showError(email, 'emailError', 'Email is required');
             isValid = false;
@@ -81,6 +109,7 @@ class IpaModal {
             isValid = false;
         }
 
+        // Mobile validation (Singapore format)
         if (!mobile.value.trim()) {
             this.showError(mobile, 'mobileError', 'Mobile number is required');
             isValid = false;
