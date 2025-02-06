@@ -430,7 +430,7 @@ input.error + .error-message {
 .loan-eligibility-center .result-item span {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #052048;
+    color: #1A365D;  /* A softer, more contemporary navy */
     margin-top: 0.25rem;
     line-height: 1.2;
 }
@@ -1135,29 +1135,3 @@ input:focus-visible,
 .ipa-button:hover {
     background-color: #0a326e;
 }
-
-/* 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-#validationNotification {
-    animation: slideIn 0.3s ease-out;
-}
-
-@media (max-width: 768px) {
-    #validationNotification {
-        top: auto;
-        bottom: 20px;
-        right: 20px;
-        left: 20px;
-        text-align: center;
-    }
-} */

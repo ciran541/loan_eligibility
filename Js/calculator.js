@@ -730,38 +730,33 @@ updateMiscCosts(prefix = '') {
             const monthlyPayment = (propertyType === 'hdb') ? 
                 Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
     
+            // Calculate pure income-based loan eligibility using stress test rate
+            const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
+            const monthsTotal = tenure * 12;
+            const pureIncomeBasedEligibility = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
+    
             // Calculate maximum possible loan based on property value
             const maxPossibleLoan = propertyValue * params.MAX_LOAN_PERCENTAGE;
     
-            // Calculate loan eligibility using stress test rate
-            const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
-            const monthsTotal = tenure * 12;
-            const loanEligibility = this.calculatePV(stressMonthlyRate, monthsTotal, monthlyPayment);
-            
-            // Use the lower of loan eligibility and maximum possible loan
-            const finalLoanAmount = Math.min(loanEligibility, maxPossibleLoan);
-    
             // Calculate actual monthly installment using the final loan amount
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyPayment = Math.abs(finalLoanAmount * actualMonthlyRate * 
+            const actualMonthlyPayment = Math.abs(pureIncomeBasedEligibility * actualMonthlyRate * 
                 Math.pow(1 + actualMonthlyRate, monthsTotal) / 
                 (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1));
     
-            // Calculate loan percentage
-            const loanPercentage = (finalLoanAmount / propertyValue) * 100;
+            // Calculate loan percentage based on pure eligibility vs property value
+            const loanPercentage = (pureIncomeBasedEligibility / propertyValue) * 100;
     
             // Only calculate pledge funds if loan eligibility is less than max possible loan
             let pledgeFundData = null;
-            if (loanEligibility < maxPossibleLoan) {
-                const shortfall = maxPossibleLoan - loanEligibility;
-                // Only proceed if there's a meaningful shortfall
-                if (shortfall > 1) { // Add a small threshold to handle floating point precision
-                    const shortfallPayment = monthlyPayment * (shortfall / loanEligibility);
+            if (pureIncomeBasedEligibility < maxPossibleLoan) {
+                const shortfall = maxPossibleLoan - pureIncomeBasedEligibility;
+                if (shortfall > 1) {
+                    const shortfallPayment = monthlyPayment * (shortfall / pureIncomeBasedEligibility);
                     const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55;
                     const pledgeFund = Math.max(0, (shortfallPayment * 48) / pledgeDivisor);
                     const showFund = Math.max(0, pledgeFund / 0.3);
     
-                    // Only set pledgeFundData if the amounts are significant
                     if (pledgeFund > 1 && showFund > 1) {
                         pledgeFundData = { pledgeFund, showFund };
                     }
@@ -772,17 +767,17 @@ updateMiscCosts(prefix = '') {
                 weightedAge: this.calculateWeightedAverageAge(),
                 loanTenure: tenure,
                 propertyValue: propertyValue,
-                loanAmount: finalLoanAmount,
+                pureIncomeBasedEligibility: pureIncomeBasedEligibility,
                 monthlyInstallment: actualMonthlyPayment,
                 maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
-                pledgeFundData: pledgeFundData
+                pledgeFundData: pledgeFundData,
+                maxPossibleLoan: maxPossibleLoan
             };
         } catch (error) {
             console.error('Error calculating results:', error);
             return null;
         }
     }
-
 
     calculateLoanEligibility() {
         // Calculate results for both parameter sets
@@ -984,56 +979,57 @@ updateMiscCosts(prefix = '') {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
         const formatPercentage = (number) => {
-            // Round to handle floating point precision
             const roundedNum = Math.round(number * 100) / 100;
-            // For 55% and 75%, show without decimals
             if (roundedNum === 55 || roundedNum === 75 || number === 0.55 || number === 0.75) {
                 return `${Math.round(number)}%`;
             }
-            // For other percentages, show with 2 decimal places
             return `${number.toFixed(2)}%`;
         };
+        
         const params = type === 'standard' ? this.STANDARD_PARAMS : this.ALTERNATIVE_PARAMS;
         this.updateMiscCosts(prefix);
         
-        // Calculate maximum bank loan based on property value
-        const maxBankLoan = results.propertyValue * params.MAX_LOAN_PERCENTAGE;
+        // Always show pure income-based eligibility first
+        const pureIncomeBasedEligibility = results.pureIncomeBasedEligibility;
         
-        // Use the lower of loan eligibility or maximum bank loan
-        const actualLoanAmount = Math.min(results.loanAmount, maxBankLoan);
+        // Calculate property-based maximum (this is the theoretical maximum)
+        const theoreticalMaxLoan = results.maxPossibleLoan;
         
-        // Calculate loan eligibility percentage (capped at max percentage)
-        const loanEligibilityPercentage = Math.min(
-            (actualLoanAmount / results.propertyValue) * 100,
-            params.MAX_LOAN_PERCENTAGE * 100
-        );
+        // Final loan amount is lower of income-based eligibility or property-based maximum
+        const finalLoanAmount = Math.min(pureIncomeBasedEligibility, theoreticalMaxLoan);
+        
+        // Calculate actual achievable LTV percentage
+        const actualLTV = (finalLoanAmount / results.propertyValue) * 100;
         
         // Calculate downpayments
         const minCashDownpayment = results.propertyValue * params.MIN_CASH_PERCENTAGE;
-        const balanceDownpayment = results.propertyValue - (actualLoanAmount + minCashDownpayment);
-        
-        // Calculate balance downpayment percentage
-        const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - loanEligibilityPercentage;
+        const balanceDownpayment = results.propertyValue - (finalLoanAmount + minCashDownpayment);
+        const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - actualLTV;
     
-        // Calculate loan shortfall
-        const loanShortfall = maxBankLoan - actualLoanAmount;
+        // Calculate loan shortfall from theoretical maximum
+        const loanShortfall = theoreticalMaxLoan - finalLoanAmount;
         
         // Update chart
-          // Update chart with actual monetary values instead of percentages
-    const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
-    this.updateChart(chart, actualLoanAmount, maxBankLoan);
+        const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
+        this.updateChart(chart, finalLoanAmount, theoreticalMaxLoan);
         
-        // Update all basic result fields
+        // Update basic result fields
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
-        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
-        // document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
+        
+        // Update maxBankLoan to show actual achievable amount and LTV with blue percentage
+        const maxBankLoanLabel = document.querySelector(`label[for="${prefix}maxBankLoan"]`) || 
+                                document.getElementById(`${prefix}maxBankLoan`).previousElementSibling;
+        maxBankLoanLabel.innerHTML = `Maximum Loan-To-Valuation (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">LTV-${formatPercentage(actualLTV)}</span>):`;
+        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(finalLoanAmount);
+        
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         
-        document.getElementById(`${prefix}loanEligibilityLabel`).innerHTML = 
-            `Estimated Loan Eligibility (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(loanEligibilityPercentage)}</span>):`;
-        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(actualLoanAmount);
+        // Update loan eligibility display without percentage
+        document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 'Estimated Loan Eligibility:';
+        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(pureIncomeBasedEligibility);
         
+        // Update downpayment information
         document.getElementById(`${prefix}minCashDownpaymentLabel`).innerHTML = 
             `Minimum Cash Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}</span>):`;
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
@@ -1042,20 +1038,19 @@ updateMiscCosts(prefix = '') {
             `Balance Cash/CPF Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(balanceDownpaymentPercentage)}</span>):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
     
-        // Handle conditional results
+        // Handle conditional results section
         const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
         const fundsHeader = conditionalResults.querySelector('.funds-header h3');
         const fundsDetails = conditionalResults.querySelector('.funds-details');
     
-        // Check if user qualifies for maximum loan
-        const qualifiesForMaxLoan = Math.abs(loanEligibilityPercentage - (params.MAX_LOAN_PERCENTAGE * 100)) < 0.01;
-    
-        if (qualifiesForMaxLoan) {
+        // Check if income-based eligibility meets or exceeds theoretical maximum
+        const standardMaxPercentage = (params.MAX_LOAN_PERCENTAGE * 100);
+        if (pureIncomeBasedEligibility >= theoreticalMaxLoan) {
             fundsHeader.innerHTML = `
                 <div class="success-message">
                     <span class="success-message-icon">✓</span>
                     <span class="success-message-text">
-                        Congratulations! You qualify for the maximum ${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)} loan amount based on the information provided.
+                        Congratulations! You qualify for the maximum ${formatPercentage(standardMaxPercentage)} loan amount based on the information provided.
                     </span>
                 </div>
             `;
@@ -1067,18 +1062,16 @@ updateMiscCosts(prefix = '') {
                         Loan Shortfall: <span class="shortfall-amount">${formatCurrency(loanShortfall)}</span>
                     </div>
                     <div class="loan-header">
-                        To loan the maximum <span class="highlight-text">${formatPercentage(params.MAX_LOAN_PERCENTAGE * 100)}</span> either:
+                        To loan the maximum <span class="highlight-text">${formatPercentage(standardMaxPercentage)}</span> either:
                     </div>
                 </div>
             `;
             fundsDetails.style.display = 'block';
-            document.getElementById(`${prefix}pledgeFund`).textContent = 
-                formatCurrency(results.pledgeFundData.pledgeFund);
-            document.getElementById(`${prefix}showFund`).textContent = 
-                formatCurrency(results.pledgeFundData.showFund);
+            document.getElementById(`${prefix}pledgeFund`).textContent = formatCurrency(results.pledgeFundData.pledgeFund);
+            document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
         }
     
-        // Add styles
+        // Add styles if not already present
         if (!document.querySelector('.calculator-styles')) {
             const style = document.createElement('style');
             style.className = 'calculator-styles';
@@ -1088,30 +1081,25 @@ updateMiscCosts(prefix = '') {
                     font-size: 0.9375rem;
                     line-height: 1.5;
                 }
-    
                 .shortfall-line {
                     color: #374151;
                     font-weight: 500;
                     margin-bottom: 0.25rem;
                     font-size: 1rem;
                 }
-    
                 .shortfall-amount {
                     color: #EF4444;
                     font-weight: 600;
                 }
-    
                 .loan-header {
                     color: #374151;
                     font-weight: 500;
                     font-size: 1rem;
                 }
-    
                 .highlight-text {
                     color: #1EA8E0;
                     font-weight: inherit;
                 }
-    
                 .success-message {
                     padding: 1rem 0.75rem;
                     text-align: left;
@@ -1126,20 +1114,17 @@ updateMiscCosts(prefix = '') {
                     align-items: flex-start;
                     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
                 }
-    
                 .success-message-icon {
                     flex-shrink: 0;
                     margin-right: 0.75rem;
                     margin-top: 0.125rem;
                     color: #1EA8E0;
                 }
-    
                 .success-message-text {
                     flex: 1;
                     min-width: 0;
                     word-wrap: break-word;
                 }
-    
                 @media (min-width: 640px) {
                     .success-message {
                         padding: 1.25rem;
@@ -1147,11 +1132,9 @@ updateMiscCosts(prefix = '') {
                         text-align: center;
                         align-items: center;
                     }
-                    
                     .success-message-icon {
                         margin-top: 0;
                     }
-    
                     .shortfall-info {
                         font-size: 1rem;
                     }
