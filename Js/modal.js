@@ -8,6 +8,9 @@ class IpaModal {
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
         
+        // Ensure modal is hidden by default
+        this.modal.style.display = 'none';
+        
         this.initializeEvents();
     }
 
@@ -32,28 +35,45 @@ class IpaModal {
         // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
 
-        // Handle mobile viewport adjustments
+        // Handle mobile viewport adjustments only when modal is actually opened
         if (this.isInIframe) {
-            window.addEventListener('resize', () => {
-                if (this.modal.style.display === 'block') {
-                    this.adjustModalPosition();
-                }
-            });
+            window.addEventListener('resize', () => this.handleResize());
+        }
+    }
+
+    handleResize() {
+        // Only adjust position if modal is actually visible
+        if (this.modal.style.display === 'block') {
+            this.adjustModalPosition();
         }
     }
 
     adjustModalPosition() {
+        const modalContent = this.modal.querySelector('.ipa-modal-content');
+        
         if (window.innerWidth <= 768) { // Mobile view
-            this.modal.style.top = '0';
-            this.modal.style.height = '100%';
-            this.modal.style.overflow = 'auto';
+            // Apply mobile styles only when modal is actually open
+            if (this.modal.style.display === 'block') {
+                this.modal.style.top = '0';
+                this.modal.style.height = '100%';
+                this.modal.style.overflow = 'auto';
+                
+                if (modalContent) {
+                    modalContent.style.marginTop = '20px';
+                    modalContent.style.marginBottom = '20px';
+                    modalContent.style.maxHeight = 'none';
+                }
+            }
+        } else {
+            // Reset styles for desktop view
+            this.modal.style.top = '';
+            this.modal.style.height = '';
+            this.modal.style.overflow = '';
             
-            // Ensure modal content is visible
-            const modalContent = this.modal.querySelector('.ipa-modal-content');
             if (modalContent) {
-                modalContent.style.marginTop = '20px';
-                modalContent.style.marginBottom = '20px';
-                modalContent.style.maxHeight = 'none';
+                modalContent.style.marginTop = '';
+                modalContent.style.marginBottom = '';
+                modalContent.style.maxHeight = '';
             }
         }
     }
@@ -69,7 +89,9 @@ class IpaModal {
                 type: 'showModal'
             }, '*');
             
+            // Set display before adjusting position
             this.modal.style.display = 'block';
+            // Only adjust position after setting display
             this.adjustModalPosition();
         } else {
             this.modal.style.display = 'block';
@@ -83,7 +105,15 @@ class IpaModal {
             }, '*');
         }
         
+        // Reset all modal styles when closing
         this.modal.style.display = 'none';
+        const modalContent = this.modal.querySelector('.ipa-modal-content');
+        if (modalContent) {
+            modalContent.style.marginTop = '';
+            modalContent.style.marginBottom = '';
+            modalContent.style.maxHeight = '';
+        }
+        
         this.form.reset();
         this.clearErrors();
     }
