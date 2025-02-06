@@ -111,7 +111,7 @@
                         </div>
 
                         <div class="form-group" id="borrower1BasicSalaryGroup">
-                            <label for="borrower1BasicSalary">Basic Monthly Salary (SGD)</label>
+                            <label for="borrower1BasicSalary">Basic Monthly Salary</label>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -123,7 +123,7 @@
                         </div>
 
                         <div class="form-group" id="borrower1NoaGroup">
-                            <label for="borrower1NOA" id="borrower1NoaLabel">Annual Bonus (SGD)</label>
+                            <label for="borrower1NOA" id="borrower1NoaLabel">Annual Bonus</label>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -135,8 +135,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="borrower1Commitments">Monthly Financial Commitments (SGD)</label>
-                            <div class="helper-text">Eg. Car loan, Credit Card Instalments</div>
+                            <label for="borrower1Commitments">Monthly Financial Commitments </label>
+                            <div class="helper-text">Eg. Car Loan Instalments, Credit Card Instalments</div>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -201,7 +201,7 @@
                         </div>
 
                         <div class="form-group" id="borrower2BasicSalaryGroup">
-                            <label for="borrower2BasicSalary">Basic Monthly Salary (SGD)</label>
+                            <label for="borrower2BasicSalary">Basic Monthly Salary</label>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -213,7 +213,7 @@
                         </div>
 
                         <div class="form-group" id="borrower2NoaGroup">
-                            <label for="borrower2NOA" id="borrower2NoaLabel">Annual Bonus (SGD)</label>
+                            <label for="borrower2NOA" id="borrower2NoaLabel">Annual Bonus</label>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -225,8 +225,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="borrower2Commitments">Monthly Financial Commitments (SGD)</label>
-                            <div class="helper-text">Eg. Car loan, Credit Card Instalments</div>
+                            <label for="borrower2Commitments">Monthly Financial Commitments</label>
+                            <div class="helper-text">Eg. Car Loan Instalments, Credit Card Instalments</div>
                             <div class="input-wrapper">
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
@@ -240,13 +240,13 @@
                 </form>
             </div>
 
-            <!-- Results Section -->
+            <!-- Results Section HTML -->
+<!-- Results Section -->
 <div class="results-wrapper">
     <!-- Standard Results (75% LTV) -->
     <div class="results-container" id="standardResults">
         <div class="results-header">
             <h2>Structure 1 (Loan-To-Valuation 75%)</h2>
-
         </div>
         <div class="payment-structure">
             <h3>Payment Structure</h3>
@@ -259,15 +259,23 @@
         <div class="results-title">
             <h3>Your Loan Eligibility Results</h3>
         </div>
+
+        <!-- Centered Loan Eligibility -->
+        <div class="loan-eligibility-center">
+            <div class="result-item">
+                <label id="loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
+                <span id="loanEligibility">-</span>
+            </div>
+        </div>
+
         <div class="results-content">
             <div class="result-item">
                 <label>Target Property Price:</label>
                 <span id="targetPrice">-</span>
             </div>
-            
             <div class="result-item">
-                <label id="loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
-                <span id="loanEligibility">-</span>
+                <label>Maximum Loan-To-Valuation (LTV-75%):</label>
+                <span id="maxBankLoan">-</span>
             </div>
             <div class="result-item">
                 <label>Loan Tenure:</label>
@@ -312,7 +320,7 @@
                     <div class="fund-item">
                         <div class="fund-label">Show Funds:</div>
                         <div class="fund-amount" id="showFund">-</div>
-                        <div class="fund-helper-text">First show of funds during loan application, second show of funds before purchase completion.</div>
+                        <div class="fund-helper-text">First show of funds during loan application, second show of funds before purchase completion.</div>
                     </div>
                 </div>
             </div>
@@ -358,15 +366,23 @@
         <div class="results-title">
             <h3>Your Loan Eligibility Results</h3>
         </div>
+
+        <!-- Centered Loan Eligibility -->
+        <div class="loan-eligibility-center">
+            <div class="result-item">
+                <label id="alt-loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
+                <span id="alt-loanEligibility">-</span>
+            </div>
+        </div>
+
         <div class="results-content">
             <div class="result-item">
                 <label>Target Property Price:</label>
                 <span id="alt-targetPrice">-</span>
             </div>
-            
             <div class="result-item">
-                <label id="alt-loanEligibilityLabel">Estimated Loan Eligibility (0.00%):</label>
-                <span id="alt-loanEligibility">-</span>
+                <label>Maximum Loan-To-Valuation (LTV-55%):</label>
+                <span id="alt-maxBankLoan">-</span>
             </div>
             <div class="result-item">
                 <label>Loan Tenure:</label>
@@ -421,12 +437,12 @@
             <div class="result-item">
                 <label>Legal Fee (Purchase)</label>
                 <span id="alt-legalFee">-</span>
-                <span class="reference-rate">Actual fees may vary.</span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Valuation Fee</label>
                 <span id="alt-valuationFee">-</span>
-                <span class="reference-rate">Actual fees may vary.</span>
+                <span class="reference-rate">Actual fees may vary.</span>
             </div>
             <div class="result-item">
                 <label>Buyer Stamp Duty</label>
@@ -436,13 +452,12 @@
             <div class="result-item">
                 <label>Additional Buyer Stamp Duty</label>
                 <span id="alt-absd">-</span>
-                <!-- <span class="reference-rate">Based on residency status</span> -->
                 <span class="reference-rate">Information on ABSD remission can be found at IRAS website <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/appeals-refunds-reliefs-and-remissions/common-stamp-duty-remissions-and-reliefs-for-property/remission-of-absd-for-a-married-couple" class="info-link" target="_blank">here</a></span>
-
             </div>
         </div>
     </div>
 </div>
+
         </div>
     </div>
     <!-- IPA Form Modal -->

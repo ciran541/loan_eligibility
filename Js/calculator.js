@@ -61,8 +61,8 @@ class LoanCalculator {
 
         // new property for label texts
         this.LABEL_TEXTS = {
-            employed: 'Annual Bonus (SGD)',
-            selfEmployed: 'Annual Income (SGD)'
+            employed: 'Annual Bonus',
+            selfEmployed: 'Annual Income'
         };
 
         // Track touched fields for validation
@@ -103,28 +103,206 @@ class LoanCalculator {
         }
     }
 
-    initializeFormState() {
-        // Hide Borrower 2 section initially
-        this.borrower2Section.classList.add('hidden');
-        
-        // Hide all error messages
-        document.querySelectorAll('.error-message').forEach(error => {
-            error.style.display = 'none';
-        });
+    // Add these methods to the LoanCalculator class
 
-        // Remove required from Borrower 2 fields
-        this.borrower2Section.querySelectorAll('input').forEach(input => {
-            input.required = false;
+initializeValidationEventListeners() {
+    // Listen for property type changes
+    document.querySelectorAll('input[name="propertyType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            this.handlePropertyTypeChange(e.target.value);
         });
+    });
 
-        // Hide conditional results
-        this.conditionalResults.classList.add('hidden');
-
-        // Clear all error states
-        document.querySelectorAll('input').forEach(input => {
-            input.classList.remove('error');
+    // Listen for residency status changes for both borrowers
+    ['borrower1', 'borrower2'].forEach(borrower => {
+        document.querySelectorAll(`input[name="${borrower}ResidencyStatus"]`).forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.handleResidencyStatusChange(borrower, e.target.value);
+            });
         });
+    });
+}
+
+handlePropertyTypeChange(propertyType) {
+    if (propertyType === 'hdb') {
+        // Check both borrowers when HDB is selected
+        const borrower1Status = document.querySelector('input[name="borrower1ResidencyStatus"]:checked').value;
+        if (borrower1Status === 'foreigner') {
+            this.switchResidencyStatus('borrower1', 'singaporean');
+            this.showNotification('Borrower 1 residency switched to Singaporean as foreigners cannot purchase HDB properties');
+        }
+
+        // Check borrower 2 if in joint mode
+        if (!document.querySelector('input[name="borrowerCount"][value="single"]').checked) {
+            const borrower2Status = document.querySelector('input[name="borrower2ResidencyStatus"]:checked').value;
+            if (borrower2Status === 'foreigner') {
+                this.switchResidencyStatus('borrower2', 'singaporean');
+                this.showNotification('Borrower 2 residency switched to Singaporean as foreigners cannot purchase HDB properties');
+            }
+        }
     }
+}
+
+handleResidencyStatusChange(borrower, residencyStatus) {
+    if (residencyStatus === 'foreigner') {
+        const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
+        if (propertyType === 'hdb') {
+            this.switchPropertyType('private');
+            this.showNotification('Property type switched to Private as foreigners cannot purchase HDB properties');
+        }
+    }
+}
+
+switchResidencyStatus(borrower, newStatus) {
+    const residencyInput = document.querySelector(`input[name="${borrower}ResidencyStatus"][value="${newStatus}"]`);
+    if (residencyInput) {
+        residencyInput.checked = true;
+        // Trigger any existing residency change handlers
+        residencyInput.dispatchEvent(new Event('change'));
+    }
+}
+
+switchPropertyType(newType) {
+    const propertyTypeInput = document.querySelector(`input[name="propertyType"][value="${newType}"]`);
+    if (propertyTypeInput) {
+        propertyTypeInput.checked = true;
+        // Trigger any existing property type change handlers
+        propertyTypeInput.dispatchEvent(new Event('change'));
+    }
+}
+
+showNotification(message) {
+    // Create notification element if it doesn't exist
+    let notification = document.getElementById('validationNotification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'validationNotification';
+        
+        // Create inner container for better styling
+        const innerContainer = document.createElement('div');
+        innerContainer.className = 'notification-content';
+        
+        // Add info icon
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'notification-icon';
+        iconSpan.innerHTML = '<i class="fas fa-info-circle"></i>';
+        
+        // Add message container
+        const messageSpan = document.createElement('span');
+        messageSpan.className = 'notification-message';
+        
+        // Assemble the notification
+        innerContainer.appendChild(iconSpan);
+        innerContainer.appendChild(messageSpan);
+        notification.appendChild(innerContainer);
+        
+        // Add styles through a style tag instead of inline styles
+        if (!document.getElementById('notificationStyles')) {
+            const style = document.createElement('style');
+            style.id = 'notificationStyles';
+            style.textContent = `
+                #validationNotification {
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    z-index: 1000;
+                    transform: translateX(-150%);
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    max-width: 380px;
+                    pointer-events: none;
+                }
+
+                .notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background-color: #1EA8E0;
+                    color: white;
+                    padding: 16px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    font-size: 14px;
+                    line-height: 1.5;
+                }
+
+                .notification-icon {
+                    flex-shrink: 0;
+                    font-size: 20px;
+                }
+
+                .notification-message {
+                    flex-grow: 1;
+                }
+
+                #validationNotification.show {
+                    transform: translateX(0);
+                }
+
+                @media (max-width: 768px) {
+                    #validationNotification {
+                        left: 16px;
+                        right: 16px;
+                        bottom: 20px;
+                        top: auto;
+                        max-width: none;
+                    }
+                    
+                    .notification-content {
+                        text-align: left;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(notification);
+    }
+
+    // Update message and show notification
+    notification.querySelector('.notification-message').textContent = message;
+    
+    // Trigger reflow to ensure animation plays
+    notification.offsetHeight;
+    
+    // Show notification
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+    });
+
+    // Hide and remove notification after delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 400); // Match transition duration
+    }, 3000);
+}
+
+initializeFormState() {
+    // Your existing code stays the same
+    this.borrower2Section.classList.add('hidden');
+    
+    // Hide all error messages
+    document.querySelectorAll('.error-message').forEach(error => {
+        error.style.display = 'none';
+    });
+
+    // Remove required from Borrower 2 fields
+    this.borrower2Section.querySelectorAll('input').forEach(input => {
+        input.required = false;
+    });
+
+    // Hide conditional results
+    this.conditionalResults.classList.add('hidden');
+
+    // Clear all error states
+    document.querySelectorAll('input').forEach(input => {
+        input.classList.remove('error');
+    });
+
+    // Add this new line
+    this.initializeValidationEventListeners();
+}
 
     initializeEventListeners() {
         // Property Type Changes
@@ -847,7 +1025,7 @@ updateMiscCosts(prefix = '') {
         
         // Update all basic result fields
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
-        // document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
+        document.getElementById(`${prefix}maxBankLoan`).textContent = formatCurrency(maxBankLoan);
         // document.getElementById(`${prefix}weightedAge`).textContent = `${results.weightedAge} years`;
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
