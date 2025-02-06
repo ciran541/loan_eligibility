@@ -5,6 +5,8 @@ class IpaModal {
         this.standardIpaButton = document.getElementById('standardIpaButton');
         this.alternativeIpaButton = document.getElementById('alternativeIpaButton');
         this.form = document.getElementById('ipaForm');
+        this.submitBtn = this.form.querySelector('button[type="submit"]'); // Get submit button
+        this.originalButtonText = this.submitBtn ? this.submitBtn.innerHTML : 'Submit'; // Store original text
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
         
@@ -226,9 +228,25 @@ showNotification() {
     }, 5000);
 }
 
+showLoading() {
+    if (this.submitBtn) {
+        this.submitBtn.disabled = true;
+        this.submitBtn.innerHTML = 'Submitting...';
+    }
+}
+
+hideLoading() {
+    if (this.submitBtn) {
+        this.submitBtn.disabled = false;
+        this.submitBtn.innerHTML = this.originalButtonText;
+    }
+}
+
 async handleSubmit(e) {
     e.preventDefault();
     if (this.validateForm()) {
+        this.showLoading(); // Show loading state
+
         const formData = new FormData(this.form);
         const loanDetails = this.getLoanDetails();
         
@@ -253,11 +271,11 @@ async handleSubmit(e) {
 
             const response = await fetch(scriptURL, {
                 method: 'POST',
-                mode: 'no-cors', // This is key to avoid CORS issues
+                mode: 'no-cors',
                 body: form
             });
 
-            // Close modal first
+            this.hideLoading(); // Hide loading state
             this.closeModal();
             
             // Show notification
@@ -270,8 +288,9 @@ async handleSubmit(e) {
             }, 5000);
             
         } catch (error) {
+            this.hideLoading(); // Hide loading state on error
             console.error('Error submitting form:', error);
-            // Show error notification instead of alert
+            // Show error notification
             const notification = document.getElementById('notification');
             const title = notification.querySelector('.notification-title');
             const description = notification.querySelector('.notification-description');
@@ -302,5 +321,5 @@ async handleSubmit(e) {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new IpaModal();
+new IpaModal();
 });
