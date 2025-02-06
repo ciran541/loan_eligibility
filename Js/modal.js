@@ -31,28 +31,26 @@ class IpaModal {
         
         // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-
-        // Listen for messages from parent window
-        if (this.isInIframe) {
-            window.addEventListener('message', (event) => {
-                if (event.data.type === 'modalClosed') {
-                    this.handleParentModalClose();
-                }
-            });
-        }
     }
 
     openModal() {
         if (this.isInIframe) {
-            // Get the entire modal HTML content
-            const modalContent = this.modal.outerHTML;
+            const headerText = document.querySelector('.ipa-header');
+            if (headerText) {
+                headerText.textContent = this.selectedStructure;
+            }
             
-            // Send to parent window
+            // Tell parent to adjust positioning
             window.parent.postMessage({
                 type: 'showModal',
-                content: modalContent,
-                structure: this.selectedStructure
+                position: {
+                    top: window.pageYOffset
+                }
             }, '*');
+            
+            // Show modal in iframe
+            this.modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         } else {
             // Original behavior for direct viewing
             this.modal.style.display = 'block';
@@ -65,10 +63,10 @@ class IpaModal {
             window.parent.postMessage({
                 type: 'closeModal'
             }, '*');
-        } else {
-            this.modal.style.display = 'none';
-            document.body.style.overflow = '';
         }
+        
+        this.modal.style.display = 'none';
+        document.body.style.overflow = '';
         this.form.reset();
         this.clearErrors();
     }
