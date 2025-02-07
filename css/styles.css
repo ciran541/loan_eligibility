@@ -1137,3 +1137,14 @@ input:focus-visible,
     background-color: #0a326e;
 }
 
+.bottom-ipa-section {
+    width: 100%;
+    padding: 1rem 0;
+    text-align: center;
+    margin-top: 0; /* Remove any top margin */
+}
+
+.results-wrapper {
+    margin-bottom: 0; /* Remove bottom margin if any */
+}
+

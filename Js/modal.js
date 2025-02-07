@@ -4,6 +4,7 @@ class IpaModal {
         this.closeBtn = document.querySelector('.ipa-close');
         this.standardIpaButton = document.getElementById('standardIpaButton');
         this.alternativeIpaButton = document.getElementById('alternativeIpaButton');
+        this.bottomIpaButton = document.getElementById('bottomIpaButton');
         this.form = document.getElementById('ipaForm');
         this.submitBtn = this.form.querySelector('button[type="submit"]'); // Get submit button
         this.originalButtonText = this.submitBtn ? this.submitBtn.innerHTML : 'Submit'; // Store original text
@@ -25,6 +26,12 @@ class IpaModal {
         
         this.alternativeIpaButton.addEventListener('click', () => {
             this.selectedStructure = 'Structure 2 (55% LTV)';
+            this.openModal();
+        });
+
+        // Add event listener for bottom IPA button
+        this.bottomIpaButton.addEventListener('click', () => {
+            this.selectedStructure = 'Structure 1 (75% LTV)';
             this.openModal();
         });
         
