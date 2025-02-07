@@ -29,7 +29,7 @@ class LoanCalculator {
     this.alternativeChart = this.initializeChart('alternativeLoanChart');
 
         // Common constants for calculations
-        this.STRESS_TEST_RATE = 0.042; // 4.2% annual interest rate
+        this.STRESS_TEST_RATE = 0.040; // 4.2% annual interest rate
         this.MONTHLY_INSTALLMENT_RATE = 0.025; // 2.5% annual interest rate for monthly installment
         this.MSR_LIMIT = 0.30; // 30% for MSR
         this.TDSR_LIMIT = 0.55; // 55% for TDSR
@@ -1056,3 +1056,4 @@ window.addEventListener('load', function() {
     window.addEventListener('resize', sendHeight);
     sendHeight();
 });
+
