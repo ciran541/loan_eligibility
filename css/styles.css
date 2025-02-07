@@ -1141,10 +1141,7 @@ input:focus-visible,
     width: 100%;
     padding: 1rem 0;
     text-align: center;
-    margin-top: 0; /* Remove any top margin */
+    margin-top: -40px;
 }
 
-.results-wrapper {
-    margin-bottom: 0; /* Remove bottom margin if any */
-}
 
