@@ -142,7 +142,7 @@ input[type="text"] {
     padding: 0.875rem 1rem;
     border: 1px solid var(--border-color);
     border-radius: 0 0.5rem 0.5rem 0;
-    background-color: var(--input-bg);
+    /* background-color: var(--input-bg); */
     font-size: 1rem;
     transition: var(--transition);
     color: var(--icon-bg);
