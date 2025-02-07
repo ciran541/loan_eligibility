@@ -218,15 +218,26 @@ class IpaModal {
     }
 
     // Add this method to your IpaModal class
-showNotification() {
-    const notification = document.getElementById('notification');
-    notification.classList.add('show');
-    
-    // Hide notification after 5 seconds
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 5000);
-}
+    showNotification(type = 'success', title = 'Success!', message = 'Thank you for your submission. Our team will contact you shortly.') {
+        // Instead of showing notification in iframe, send message to parent
+        if (this.isInIframe) {
+            window.parent.postMessage({
+                type: 'showNotification',
+                notification: {
+                    type: type,
+                    title: title,
+                    message: message,
+                    icon: type === 'success' ? 
+                        `<svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
+                        </svg>` :
+                        `<svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="#EF4444" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>`
+                }
+            }, '*');
+        }
+    }
 
 showLoading() {
     if (this.submitBtn) {
@@ -245,12 +256,11 @@ hideLoading() {
 async handleSubmit(e) {
     e.preventDefault();
     if (this.validateForm()) {
-        this.showLoading(); // Show loading state
+        this.showLoading();
 
         const formData = new FormData(this.form);
         const loanDetails = this.getLoanDetails();
         
-        // Combine form data and loan details
         const submissionData = {
             timestamp: new Date().toISOString(),
             name: formData.get('name'),
@@ -260,10 +270,7 @@ async handleSubmit(e) {
         };
 
         try {
-            // Create a URL with parameters
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyFm2j9tPOhV5f2PBZtgRtQLQq_De_ppJe_HNvSxGS2oKToBQ8Ujw6-0YTbw8yODoA/exec';
-            
-            // Send as form data instead of JSON
             const form = new FormData();
             Object.keys(submissionData).forEach(key => {
                 form.append(key, submissionData[key]);
@@ -275,45 +282,22 @@ async handleSubmit(e) {
                 body: form
             });
 
-            this.hideLoading(); // Hide loading state
+            this.hideLoading();
             this.closeModal();
             
-            // Show notification
-            const notification = document.getElementById('notification');
-            notification.classList.add('show');
-            
-            // Hide notification after 5 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 5000);
+            // Show success notification
+            this.showNotification('success', 'Success!', 'Thank you for your submission. Our team will contact you shortly.');
             
         } catch (error) {
-            this.hideLoading(); // Hide loading state on error
+            this.hideLoading();
             console.error('Error submitting form:', error);
+            
             // Show error notification
-            const notification = document.getElementById('notification');
-            const title = notification.querySelector('.notification-title');
-            const description = notification.querySelector('.notification-description');
-            const icon = notification.querySelector('.notification-icon');
-            
-            // Update notification content for error
-            title.textContent = 'Error';
-            description.textContent = 'Sorry, there was an error submitting your form. Please try again.';
-            icon.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24">
-                <path fill="#EF4444" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>`;
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                // Reset notification content after hiding
-                title.textContent = 'Success!';
-                description.textContent = 'Thank you for your submission. Our team will contact you shortly.';
-                icon.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24">
-                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
-                </svg>`;
-            }, 5000);
+            this.showNotification(
+                'error',
+                'Error',
+                'Sorry, there was an error submitting your form. Please try again.'
+            );
         }
     }
 }
