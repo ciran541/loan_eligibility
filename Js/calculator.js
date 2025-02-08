@@ -602,19 +602,30 @@ updateMiscCosts(prefix = '') {
     
             // Calculate actual monthly installment using the final loan amount
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyPayment = Math.abs(pureIncomeBasedEligibility * actualMonthlyRate * 
-                Math.pow(1 + actualMonthlyRate, monthsTotal) / 
-                (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1));
+            const actualMonthlyPayment = pureIncomeBasedEligibility > 0 ? 
+                Math.abs(pureIncomeBasedEligibility * actualMonthlyRate * 
+                    Math.pow(1 + actualMonthlyRate, monthsTotal) / 
+                    (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1)) : 0;
     
             // Calculate loan percentage based on pure eligibility vs property value
             const loanPercentage = (pureIncomeBasedEligibility / propertyValue) * 100;
     
-            // Only calculate pledge funds if loan eligibility is less than max possible loan
+            // Calculate pledge funds
             let pledgeFundData = null;
             if (pureIncomeBasedEligibility < maxPossibleLoan) {
                 const shortfall = maxPossibleLoan - pureIncomeBasedEligibility;
                 if (shortfall > 1) {
-                    const shortfallPayment = monthlyPayment * (shortfall / pureIncomeBasedEligibility);
+                    let shortfallPayment;
+                    if (pureIncomeBasedEligibility === 0) {
+                        // Calculate monthly payment needed for the full shortfall amount
+                        shortfallPayment = shortfall * 
+                            (stressMonthlyRate * Math.pow(1 + stressMonthlyRate, monthsTotal)) / 
+                            (Math.pow(1 + stressMonthlyRate, monthsTotal) - 1);
+                    } else {
+                        // Use existing ratio method when there is some income-based eligibility
+                        shortfallPayment = monthlyPayment * (shortfall / pureIncomeBasedEligibility);
+                    }
+    
                     const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55;
                     const pledgeFund = Math.max(0, (shortfallPayment * 48) / pledgeDivisor);
                     const showFund = Math.max(0, pledgeFund / 0.3);
