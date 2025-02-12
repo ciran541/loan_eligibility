@@ -1045,26 +1045,94 @@ document.addEventListener('DOMContentLoaded', () => {
     new LoanCalculator();
 });
 
-window.addEventListener('load', function() {
-    // Function to send height to parent
-    function sendHeight() {
-        window.parent.postMessage({
-            type: 'setHeight',
-            height: document.documentElement.scrollHeight
-        }, '*');
+class PageHeightManager {
+    constructor() {
+        this.previousHeight = 0;
+        this.resizeTimeout = null;
+        this.observerTimeout = null;
+        this.THROTTLE_DELAY = 16; // ~60fps
+        this.TRUSTED_PARENT_ORIGIN = '*'; // Replace with specific origin in production
     }
 
-    // Send height when content changes
-    const observer = new MutationObserver(sendHeight);
-    
-    // Watch for DOM changes
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    initialize() {
+        this.setupHeightReporting();
+        this.setupMutationObserver();
+        this.setupResizeListener();
+    }
 
-    // Also send height on load and resize
-    window.addEventListener('resize', sendHeight);
-    sendHeight();
+    setupHeightReporting() {
+        // Initial height report
+        this.sendHeight();
+    }
+
+    setupMutationObserver() {
+        const observerCallback = () => {
+            // Throttle mutation observer callbacks
+            if (this.observerTimeout) return;
+
+            this.observerTimeout = setTimeout(() => {
+                this.sendHeight();
+                this.observerTimeout = null;
+            }, this.THROTTLE_DELAY);
+        };
+
+        // Create and start the observer with optimized configuration
+        const observer = new MutationObserver(observerCallback);
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class'], // Only watch style/class changes
+            characterData: false
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('unload', () => observer.disconnect());
+    }
+
+    setupResizeListener() {
+        window.addEventListener('resize', () => {
+            // Throttle resize events
+            if (this.resizeTimeout) return;
+
+            this.resizeTimeout = setTimeout(() => {
+                this.sendHeight();
+                this.resizeTimeout = null;
+            }, this.THROTTLE_DELAY);
+        });
+    }
+
+    getDocumentHeight() {
+        // Get the most accurate height by comparing multiple measurements
+        return Math.max(
+            document.documentElement.scrollHeight,
+            document.documentElement.offsetHeight,
+            document.documentElement.clientHeight
+        );
+    }
+
+    sendHeight() {
+        const currentHeight = this.getDocumentHeight();
+
+        // Only send if height has actually changed
+        if (currentHeight !== this.previousHeight) {
+            try {
+                window.parent.postMessage({
+                    type: 'setHeight',
+                    height: currentHeight
+                }, this.TRUSTED_PARENT_ORIGIN);
+                
+                this.previousHeight = currentHeight;
+            } catch (error) {
+                console.error('Error sending height to parent:', error);
+            }
+        }
+    }
+}
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    const heightManager = new PageHeightManager();
+    heightManager.initialize();
 });
-
