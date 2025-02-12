@@ -430,12 +430,10 @@ input.error + .error-message {
 .loan-eligibility-center .result-item span {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff; /* White text for contrast */
-    background-color: #1A365D;
-    display: inline-block;
+    color: #1A365D;
     margin-top: 0.25rem;
     line-height: 1.2;
-    padding: 0.1rem 0.3rem; /* Optional: adds some padding around the text */
+
 }
 
 /* Responsive styles */
