@@ -1045,26 +1045,69 @@ document.addEventListener('DOMContentLoaded', () => {
     new LoanCalculator();
 });
 
+// Add this to your calculator page JavaScript
 window.addEventListener('load', function() {
     // Function to send height to parent
     function sendHeight() {
+        const height = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight
+        );
+        
         window.parent.postMessage({
             type: 'setHeight',
-            height: document.documentElement.scrollHeight
+            height: height
         }, '*');
     }
 
-    // Send height when content changes
-    const observer = new MutationObserver(sendHeight);
-    
-    // Watch for DOM changes
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
+    // Create ResizeObserver to watch for content changes
+    const resizeObserver = new ResizeObserver(() => {
+        sendHeight();
     });
 
-    // Also send height on load and resize
-    window.addEventListener('resize', sendHeight);
-    sendHeight();
+    // Observe both body and documentElement
+    resizeObserver.observe(document.body);
+    resizeObserver.observe(document.documentElement);
+
+    // Also watch for DOM changes
+    const mutationObserver = new MutationObserver(() => {
+        sendHeight();
+    });
+
+    // Observe DOM changes
+    mutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        sendHeight();
+    });
+
+    // Initial height send
+    setTimeout(sendHeight, 100);
 });
 
+// Add this if you need to handle modal states
+function showModal() {
+    window.parent.postMessage({ type: 'showModal' }, '*');
+}
+
+function closeModal() {
+    window.parent.postMessage({ type: 'closeModal' }, '*');
+}
+
+// Add this if you need to show notifications
+function showNotification(type, title, message, icon = '') {
+    window.parent.postMessage({
+        type: 'showNotification',
+        notification: {
+            type: type,
+            title: title,
+            message: message,
+            icon: icon
+        }
+    }, '*');
+}
