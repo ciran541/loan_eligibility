@@ -600,15 +600,18 @@ updateMiscCosts(prefix = '') {
             // Calculate maximum possible loan based on property value
             const maxPossibleLoan = propertyValue * params.MAX_LOAN_PERCENTAGE;
     
+            // Final loan amount is the lower of income-based eligibility and max possible loan
+            const finalLoanAmount = Math.min(pureIncomeBasedEligibility, maxPossibleLoan);
+    
             // Calculate actual monthly installment using the final loan amount
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyPayment = pureIncomeBasedEligibility > 0 ? 
-                Math.abs(pureIncomeBasedEligibility * actualMonthlyRate * 
+            const actualMonthlyPayment = finalLoanAmount > 0 ? 
+                Math.abs(finalLoanAmount * actualMonthlyRate * 
                     Math.pow(1 + actualMonthlyRate, monthsTotal) / 
                     (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1)) : 0;
     
-            // Calculate loan percentage based on pure eligibility vs property value
-            const loanPercentage = (pureIncomeBasedEligibility / propertyValue) * 100;
+            // Calculate loan percentage based on final loan amount vs property value
+            const loanPercentage = (finalLoanAmount / propertyValue) * 100;
     
             // Calculate pledge funds
             let pledgeFundData = null;
@@ -644,7 +647,8 @@ updateMiscCosts(prefix = '') {
                 monthlyInstallment: actualMonthlyPayment,
                 maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
                 pledgeFundData: pledgeFundData,
-                maxPossibleLoan: maxPossibleLoan
+                maxPossibleLoan: maxPossibleLoan,
+                finalLoanAmount: finalLoanAmount  // Added this to make it explicit
             };
         } catch (error) {
             console.error('Error calculating results:', error);
