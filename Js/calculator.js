@@ -1050,50 +1050,67 @@ class PageHeightManager {
         this.previousHeight = 0;
         this.resizeTimeout = null;
         this.observerTimeout = null;
-        this.THROTTLE_DELAY = 16; // ~60fps
-        this.TRUSTED_PARENT_ORIGIN = '*'; // Replace with specific origin in production
+        this.THROTTLE_DELAY = 16;
+        this.TRUSTED_PARENT_ORIGIN = '*';
+        this.initialized = false;
     }
 
     initialize() {
+        if (this.initialized) return;
+        
         this.setupHeightReporting();
         this.setupMutationObserver();
         this.setupResizeListener();
+        this.setupMessageListener();
+        this.setupVisibilityListener();
+        
+        // Initial height calculation with delay
+        setTimeout(() => {
+            this.sendHeight();
+            this.initialized = true;
+        }, 50);
     }
 
     setupHeightReporting() {
-        // Initial height report
-        this.sendHeight();
+        // Report height after images and resources load
+        window.addEventListener('load', () => this.sendHeight());
+        
+        // Monitor dynamic content loading
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        this.sendHeight();
+                    }
+                });
+            });
+            
+            // Observe all images and iframes
+            document.querySelectorAll('img, iframe').forEach(el => observer.observe(el));
+        }
     }
 
     setupMutationObserver() {
-        const observerCallback = () => {
-            // Throttle mutation observer callbacks
+        const observer = new MutationObserver(() => {
             if (this.observerTimeout) return;
 
             this.observerTimeout = setTimeout(() => {
                 this.sendHeight();
                 this.observerTimeout = null;
             }, this.THROTTLE_DELAY);
-        };
-
-        // Create and start the observer with optimized configuration
-        const observer = new MutationObserver(observerCallback);
+        });
         
         observer.observe(document.body, {
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: ['style', 'class'], // Only watch style/class changes
+            attributeFilter: ['style', 'class'],
             characterData: false
         });
-
-        // Cleanup on page unload
-        window.addEventListener('unload', () => observer.disconnect());
     }
 
     setupResizeListener() {
         window.addEventListener('resize', () => {
-            // Throttle resize events
             if (this.resizeTimeout) return;
 
             this.resizeTimeout = setTimeout(() => {
@@ -1103,19 +1120,37 @@ class PageHeightManager {
         });
     }
 
+    setupMessageListener() {
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'requestHeight') {
+                this.sendHeight();
+            }
+        });
+    }
+
+    setupVisibilityListener() {
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                this.sendHeight();
+            }
+        });
+    }
+
     getDocumentHeight() {
-        // Get the most accurate height by comparing multiple measurements
+        const body = document.body;
+        const html = document.documentElement;
+
         return Math.max(
-            document.documentElement.scrollHeight,
-            document.documentElement.offsetHeight,
-            document.documentElement.clientHeight
+            body.scrollHeight, body.offsetHeight,
+            html.clientHeight, html.scrollHeight, html.offsetHeight,
+            window.innerHeight || 0
         );
     }
 
     sendHeight() {
         const currentHeight = this.getDocumentHeight();
-
-        // Only send if height has actually changed
+        
+        // Only send if height has changed
         if (currentHeight !== this.previousHeight) {
             try {
                 window.parent.postMessage({
@@ -1131,8 +1166,16 @@ class PageHeightManager {
     }
 }
 
-// Initialize on page load
-window.addEventListener('load', () => {
+// Initialize both managers
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize calculator manager
+    const calculator = new LoanCalculatorManager();
+    calculator.initialize();
+});
+
+// Initialize height manager for iframe content page
+if (window.self !== window.top) {
+    // Only initialize if we're in an iframe
     const heightManager = new PageHeightManager();
     heightManager.initialize();
-});
+}
