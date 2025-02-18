@@ -277,7 +277,7 @@ async handleSubmit(e) {
         };
 
         try {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyFm2j9tPOhV5f2PBZtgRtQLQq_De_ppJe_HNvSxGS2oKToBQ8Ujw6-0YTbw8yODoA/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzI2eXwsWnyKz0fLrWIFA3G-CYjR92Ud-KMkiSFf8FSkfLGYak2Z-zd63NXG5LuoMtu/exec';
             const form = new FormData();
             Object.keys(submissionData).forEach(key => {
                 form.append(key, submissionData[key]);
