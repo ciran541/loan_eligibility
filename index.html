@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add these before your existing scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -266,7 +269,7 @@
                 <label id="loanEligibilityLabel">Estimated Loan Eligibility (0.00%)</label>
                 <span id="loanEligibility">-</span>
                 <div class="ipa-button-wrapper">
-                    <button class="ipa-button" id="standardIpaButton">Get your IPA now!</button>
+                    <button class="ipa-button" id="standardIpaButton">Send me this report</button>
                 </div>
             </div>
         </div>
@@ -374,7 +377,7 @@
                 <label id="alt-loanEligibilityLabel">Estimated Loan Eligibility (0.00%)</label>
                 <span id="alt-loanEligibility">-</span>
                 <div class="ipa-button-wrapper">
-                    <button class="ipa-button" id="alternativeIpaButton">Get your IPA now!</button>
+                    <button class="ipa-button" id="alternativeIpaButton">Send me this report</button>
                 </div>
             </div>
         </div>
@@ -461,7 +464,7 @@
     <!-- New Bottom IPA Button -->
 <div class="bottom-ipa-section">
     <div class="ipa-button-wrapper" style="max-width: 300px; margin: 2rem auto;">
-        <button class="ipa-button" id="bottomIpaButton">Get your IPA now!</button>
+        <button class="ipa-button" id="bottomIpaButton">Send me this report</button>
     </div>
 </div>
 </div>

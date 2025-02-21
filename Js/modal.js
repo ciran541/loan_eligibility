@@ -260,25 +260,130 @@ hideLoading() {
     }
 }
 
+
 async handleSubmit(e) {
     e.preventDefault();
     if (this.validateForm()) {
         this.showLoading();
 
-        const formData = new FormData(this.form);
-        const loanDetails = this.getLoanDetails();
-        
-        const submissionData = {
-            timestamp: new Date().toISOString(),
-            name: formData.get('name'),
-            email: formData.get('emailAddress'),
-            mobile: formData.get('mobileNumber'),
-            ...loanDetails
-        };
-
         try {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzI2eXwsWnyKz0fLrWIFA3G-CYjR92Ud-KMkiSFf8FSkfLGYak2Z-zd63NXG5LuoMtu/exec';
+            // Get form data for the PDF
+            const formData = new FormData(this.form);
+            const loanDetails = this.getLoanDetails();
+            const userName = formData.get('name');
+            const userEmail = formData.get('emailAddress');
+            
+            // Create a temporary container for PDF capture
+            const captureContainer = document.createElement('div');
+            captureContainer.className = 'pdf-capture-container';
+            
+            // Improved header with company branding and user details
+            const header = document.createElement('div');
+            header.className = 'pdf-header';
+            header.innerHTML = `
+                <div class="company-info">
+                    <h1>The Loan Connection</h1>
+                </div>
+                <div class="user-info">
+                    <p><strong>Prepared for:</strong> ${userName || 'Valued Customer'}</p>
+                    <p><strong>Email:</strong> ${userEmail || 'N/A'}</p>
+                    <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
+                </div>
+            `;
+            captureContainer.appendChild(header);
+            
+            // Clone the results section
+            const resultsSection = document.querySelector('.results-wrapper');
+            const resultsClone = resultsSection.cloneNode(true);
+            
+            // Ensure all elements are visible
+            const allElements = resultsClone.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (window.getComputedStyle(el).display === 'none') {
+                    el.style.display = 'block';
+                }
+            });
+            
+            captureContainer.appendChild(resultsClone);
+            
+            // Add footer
+            const footer = document.createElement('div');
+            footer.className = 'pdf-footer';
+            footer.innerHTML = `
+                <hr>
+                <p>This report was generated on ${new Date().toLocaleString()}</p>
+                <p>For any questions, please contact our mortgage specialists at info@theloanconnection.com</p>
+            `;
+            captureContainer.appendChild(footer);
+            
+            // Temporarily add to document for capture
+            document.body.appendChild(captureContainer);
+            
+            // Set explicit dimensions
+            const width = Math.max(resultsClone.scrollWidth, 800); // minimum width
+            const height = Math.max(resultsClone.scrollHeight + header.scrollHeight + footer.scrollHeight + 60, 1000); // minimum height
+            
+            captureContainer.style.width = `${width}px`;
+            
+            // Important: Ensure charts are properly rendered before capture
+            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for charts to render
+            
+            // Capture the content
+            const canvas = await html2canvas(captureContainer, {
+                scale: 2, // Higher quality
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: width,
+                height: height,
+                windowWidth: width,
+                windowHeight: height,
+                onclone: (clonedDoc) => {
+                    // Ensure charts are rendered in cloned document
+                    const clonedCharts = clonedDoc.querySelectorAll('canvas');
+                    const originalCharts = document.querySelectorAll('canvas');
+                    
+                    clonedCharts.forEach((clonedChart, index) => {
+                        if (index < originalCharts.length) {
+                            const originalChart = originalCharts[index];
+                            const context = clonedChart.getContext('2d');
+                            context.drawImage(originalChart, 0, 0);
+                        }
+                    });
+                }
+            });
+            
+            // Remove temporary container
+            document.body.removeChild(captureContainer);
+            
+            // Initialize PDF with appropriate dimensions
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+            
+            // Add the canvas as an image to the PDF
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height, '', 'FAST');
+            
+            // Rest of your existing code for submission...
+            const pdfBase64 = pdf.output('datauristring').split(',')[1];
+            
+            const submissionData = {
+                timestamp: new Date().toISOString(),
+                name: formData.get('name'),
+                email: formData.get('emailAddress'),
+                mobile: formData.get('mobileNumber'),
+                pdfData: pdfBase64,
+                ...loanDetails
+            };
+
+            // Submit to your Google Apps Script
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzybzs8rGmJxAkmxEUxys2yrz5ckymoNOPjoV5eRldaeeEHGU-3allr3NFp2kI0F6K5ag/exec';
             const form = new FormData();
+            
             Object.keys(submissionData).forEach(key => {
                 form.append(key, submissionData[key]);
             });
@@ -292,14 +397,16 @@ async handleSubmit(e) {
             this.hideLoading();
             this.closeModal();
             
-            // Show success notification
-            this.showNotification('success', 'Success!', 'Thank you for your submission. Our team will contact you shortly.');
+            this.showNotification(
+                'success', 
+                'Success!', 
+                'Thank you for your submission. Our team will contact you shortly.'
+            );
             
         } catch (error) {
-            this.hideLoading();
             console.error('Error submitting form:', error);
+            this.hideLoading();
             
-            // Show error notification
             this.showNotification(
                 'error',
                 'Error',

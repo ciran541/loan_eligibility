@@ -240,3 +240,55 @@
         bottom: 16px;
     }
 }
+
+
+.pdf-capture-container {
+    background: white;
+    padding: 30px;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.pdf-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #0066cc;
+}
+
+.company-info h1 {
+    color: #052048;
+    margin: 0 0 5px 0;
+    font-size: 28px;
+}
+
+.company-info h2 {
+    color: #444;
+    margin: 0;
+    font-size: 20px;
+}
+
+.user-info {
+    text-align: right;
+    font-size: 14px;
+}
+
+.user-info p {
+    margin: 5px 0;
+}
+
+.pdf-footer {
+    margin-top: 40px;
+    padding-top: 15px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.pdf-footer hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin-bottom: 15px;
+}
