@@ -249,7 +249,7 @@ class IpaModal {
 showLoading() {
     if (this.submitBtn) {
         this.submitBtn.disabled = true;
-        this.submitBtn.innerHTML = 'Submitting...';
+        this.submitBtn.innerHTML = 'Almost there! Preparing your report...';
     }
 }
 
@@ -267,38 +267,57 @@ async handleSubmit(e) {
         this.showLoading();
 
         try {
-            // Get form data for the PDF
             const formData = new FormData(this.form);
             const loanDetails = this.getLoanDetails();
             const userName = formData.get('name');
             const userEmail = formData.get('emailAddress');
             
-            // Create a temporary container for PDF capture
+            // Create temporary container
             const captureContainer = document.createElement('div');
             captureContainer.className = 'pdf-capture-container';
             
-            // Improved header with company branding and user details
-            const header = document.createElement('div');
-            header.className = 'pdf-header';
-            header.innerHTML = `
+            captureContainer.innerHTML = `
+            <div class="pdf-header">
                 <div class="company-info">
                     <h1>The Loan Connection</h1>
+                    <h2>Getting The Right Mortgage</h2> <!-- Retaining the tagline for brand consistency -->
                 </div>
                 <div class="user-info">
                     <p><strong>Prepared for:</strong> ${userName || 'Valued Customer'}</p>
                     <p><strong>Email:</strong> ${userEmail || 'N/A'}</p>
-                    <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
+                    <p><strong>Generated on:</strong> ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
                 </div>
-            `;
-            captureContainer.appendChild(header);
-            
-            // Clone the results section
+            </div>
+        `;
+            // Clone results section
             const resultsSection = document.querySelector('.results-wrapper');
             const resultsClone = resultsSection.cloneNode(true);
-            
-            // Ensure all elements are visible
-            const allElements = resultsClone.querySelectorAll('*');
-            allElements.forEach(el => {
+
+            // Function to capture chart as image
+            const captureChart = (chartId) => {
+                const originalChart = document.getElementById(chartId);
+                if (originalChart) {
+                    const chartInstance = Chart.getChart(originalChart);
+                    if (chartInstance) {
+                        const chartImage = chartInstance.toBase64Image();
+                        const clonedCanvas = resultsClone.querySelector(`#${chartId}`);
+                        if (clonedCanvas) {
+                            const img = document.createElement('img');
+                            img.src = chartImage;
+                            img.style.width = '100%';
+                            img.style.height = 'auto';
+                            clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
+                        }
+                    }
+                }
+            };
+
+            // Capture both charts
+            captureChart('standardLoanChart');
+            captureChart('alternativeLoanChart');
+
+            // Make all elements visible
+            resultsClone.querySelectorAll('*').forEach(el => {
                 if (window.getComputedStyle(el).display === 'none') {
                     el.style.display = 'block';
                 }
@@ -306,71 +325,54 @@ async handleSubmit(e) {
             
             captureContainer.appendChild(resultsClone);
             
-            // Add footer
-            const footer = document.createElement('div');
-            footer.className = 'pdf-footer';
-            footer.innerHTML = `
+            captureContainer.innerHTML += `
+            <div class="pdf-footer">
                 <hr>
-                <p>This report was generated on ${new Date().toLocaleString()}</p>
-                <p>For any questions, please contact our mortgage specialists at info@theloanconnection.com</p>
-            `;
-            captureContainer.appendChild(footer);
+                <p>This report was generated on ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                <p>For any questions, please contact our mortgage specialists at <a href="mailto:info@theloanconnection.com">enquiry@theloanconnection.com.sg</a></p>
+            </div>
+        `;
             
-            // Temporarily add to document for capture
+            // Add to document for capture
             document.body.appendChild(captureContainer);
             
-            // Set explicit dimensions
-            const width = Math.max(resultsClone.scrollWidth, 800); // minimum width
-            const height = Math.max(resultsClone.scrollHeight + header.scrollHeight + footer.scrollHeight + 60, 1000); // minimum height
+            // Use original dimensions
+            const width = Math.max(resultsClone.scrollWidth, 800);
+            const height = Math.max(resultsClone.scrollHeight + 200, 4300);
             
             captureContainer.style.width = `${width}px`;
             
-            // Important: Ensure charts are properly rendered before capture
-            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for charts to render
-            
-            // Capture the content
+            // Capture content
             const canvas = await html2canvas(captureContainer, {
-                scale: 2, // Higher quality
+                scale: 2,
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff',
                 width: width,
                 height: height,
                 windowWidth: width,
-                windowHeight: height,
-                onclone: (clonedDoc) => {
-                    // Ensure charts are rendered in cloned document
-                    const clonedCharts = clonedDoc.querySelectorAll('canvas');
-                    const originalCharts = document.querySelectorAll('canvas');
-                    
-                    clonedCharts.forEach((clonedChart, index) => {
-                        if (index < originalCharts.length) {
-                            const originalChart = originalCharts[index];
-                            const context = clonedChart.getContext('2d');
-                            context.drawImage(originalChart, 0, 0);
-                        }
-                    });
-                }
+                windowHeight: height
             });
             
             // Remove temporary container
             document.body.removeChild(captureContainer);
             
-            // Initialize PDF with appropriate dimensions
+            // Create PDF
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
-                orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                orientation: width > height ? 'landscape' : 'portrait',
                 unit: 'px',
-                format: [canvas.width, canvas.height]
+                format: [width, height]
             });
             
-            // Add the canvas as an image to the PDF
+            // Add captured content to PDF
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height, '', 'FAST');
+            pdf.addImage(imgData, 'JPEG', 0, 0, width, height, '', 'FAST');
             
-            // Rest of your existing code for submission...
+            // Get base64 for submission
             const pdfBase64 = pdf.output('datauristring').split(',')[1];
             
+            // Prepare submission data
             const submissionData = {
                 timestamp: new Date().toISOString(),
                 name: formData.get('name'),
@@ -380,8 +382,8 @@ async handleSubmit(e) {
                 ...loanDetails
             };
 
-            // Submit to your Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzybzs8rGmJxAkmxEUxys2yrz5ckymoNOPjoV5eRldaeeEHGU-3allr3NFp2kI0F6K5ag/exec';
+            // Submit to Google Apps Script
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxZV44xqti1zVIFomk2s8mY7CuXQtQpdy0C13ge4QvlbPKuS-cGPR-usj9k_bhYBq1D/exec';
             const form = new FormData();
             
             Object.keys(submissionData).forEach(key => {

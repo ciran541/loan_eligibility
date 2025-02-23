@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Avenir';
+    src: url('/path/to/avenir.woff2') format('woff2'),
+         url('/path/to/avenir.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* modal.css */
 .ipa-modal {
     display: none;
@@ -243,31 +251,38 @@
 
 
 .pdf-capture-container {
-    background: white;
+    background: #f5f5f5;
     padding: 30px;
     margin: 0;
-    font-family: Arial, sans-serif;
-    color: #333;
+    font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: var(--text-color, #1f2937);
 }
 
 .pdf-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #0066cc;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--highlight-color, #1EA8E0); /* Using your highlight color for a professional border */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Using your --shadow-md for a subtle, professional shadow */
 }
 
 .company-info h1 {
-    color: #052048;
-    margin: 0 0 5px 0;
-    font-size: 28px;
+    color: var(--primary-color, #052048); /* Dark blue as requested for the title */
+    margin: 0 0 8px 0;
+    font-size: 36px; /* Larger, more commanding title for impact */
+    font-weight: 800; /* Extra bold for a strong, professional look */
+    letter-spacing: -0.5px; /* Slight tightening for elegance */
+    line-height: 1.2; /* Better readability for larger text */
 }
 
 .company-info h2 {
-    color: #444;
+    color: var(--text-light, #6b7280); /* Using your light text color for the tagline */
     margin: 0;
-    font-size: 20px;
+    font-size: 16px; /* Slightly smaller, elegant tagline */
+    font-weight: 500;
+    opacity: 0.9; /* Slightly more visible for better readability */
+    letter-spacing: 0.5px; /* Slight spacing for a clean look */
 }
 
 .user-info {
@@ -277,18 +292,42 @@
 
 .user-info p {
     margin: 5px 0;
+    color: var(--text-color, #1f2937); /* Using your primary text color for consistency */
+    font-weight: 500; /* Slightly bolder for clarity */
+}
+
+.user-info strong {
+    color: var(--primary-color, #052048); /* Matching dark blue for emphasis on labels, aligning with brand */
+    font-weight: 600;
 }
 
 .pdf-footer {
     margin-top: 40px;
-    padding-top: 15px;
+    padding-top: 20px;
     font-size: 12px;
     color: #666;
     text-align: center;
+    border-top: 2px solid #e0e0e0; /* Light gray border for separation */
 }
 
 .pdf-footer hr {
     border: none;
-    border-top: 1px solid #ddd;
-    margin-bottom: 15px;
+    border-top: 1px solid #e0e0e0; /* Lighter, consistent gray line */
+    margin: 15px 0;
+}
+
+.pdf-footer p {
+    margin: 5px 0;
+    line-height: 1.5; /* Better readability */
+    font-weight: 400;
+}
+
+.pdf-footer a {
+    color: #1a73e8; /* Matching professional blue for links */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.pdf-footer a:hover {
+    text-decoration: underline; /* Subtle interactivity */
 }
