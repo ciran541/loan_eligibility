@@ -225,7 +225,7 @@ class IpaModal {
     }
 
     // Add this method to your IpaModal class
-    showNotification(type = 'success', title = 'Success!', message = 'Thank you for your submission. Our team will contact you shortly.') {
+    showNotification(type = 'success', title = 'Success!', message = 'Thank you! Your report is being processed and will arrive in your email shortly.') {
         // Instead of showing notification in iframe, send message to parent
         if (this.isInIframe) {
             window.parent.postMessage({
