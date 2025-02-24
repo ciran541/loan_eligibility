@@ -402,7 +402,7 @@ async handleSubmit(e) {
             this.showNotification(
                 'success', 
                 'Success!', 
-                'Thank you for your submission. Our team will contact you shortly.'
+                'Thank you! Your report is being processed and will arrive in your email shortly.'
             );
             
         } catch (error) {
