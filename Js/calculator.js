@@ -673,13 +673,13 @@ updateMiscCosts(prefix = '') {
 
     initializeChart(canvasId) {
         const formatCurrency = (value) => {
-            return `$ ${Math.floor(value).toLocaleString()}`;
+            return `SGD ${Math.floor(value).toLocaleString()}`; // Revert to original SGD formatting
         };
-    
+        
         // Determine if this is the standard or alternative chart based on canvas ID
         const isStandard = canvasId === 'standardLoanChart';
         const percentage = isStandard ? '(75%)' : '(55%)';
-    
+        
         const centerTextPlugin = {
             id: 'centerText',
             afterDraw: (chart) => {
@@ -720,15 +720,15 @@ updateMiscCosts(prefix = '') {
                 ctx.save();
             }
         };
-    
+        
         const chart = new Chart(document.getElementById(canvasId), {
             type: 'doughnut',
             data: {
                 datasets: [{
                     data: [0, 0],
                     backgroundColor: [
-                        'rgba(230, 80, 60, 0.75)',
-                        '#1EA8E0'
+                        'rgba(230, 80, 60, 0.75)', // Loan Shortfall (red)
+                        '#1EA8E0' // Loan Eligibility (blue)
                     ],
                     borderWidth: 0,
                     borderRadius: 12,
@@ -767,21 +767,21 @@ updateMiscCosts(prefix = '') {
                             if (tooltipEl) {
                                 tooltipEl.remove();
                             }
-    
+            
                             // Abort if no tooltip
                             const tooltipModel = context.tooltip;
                             if (tooltipModel.opacity === 0) {
                                 return;
                             }
-    
+            
                             // Create new tooltip div
                             const newTooltipEl = document.createElement('div');
                             newTooltipEl.id = 'chartjs-tooltip';
-    
+            
                             // Set tooltip content
                             const value = tooltipModel.dataPoints[0].raw;
                             newTooltipEl.innerHTML = formatCurrency(value);
-    
+            
                             // Position tooltip
                             const position = context.chart.canvas.getBoundingClientRect();
                             
@@ -807,7 +807,7 @@ updateMiscCosts(prefix = '') {
                             const radius = position.width / 2 + 20; // 20px outside the chart
                             const tooltipX = chartCenterX + Math.cos(angle) * radius;
                             const tooltipY = chartCenterY + Math.sin(angle) * radius;
-    
+            
                             // Add styles to tooltip
                             newTooltipEl.style.backgroundColor = 'white';
                             newTooltipEl.style.padding = '8px 12px';
@@ -818,7 +818,7 @@ updateMiscCosts(prefix = '') {
                             newTooltipEl.style.left = tooltipX + 'px';
                             newTooltipEl.style.top = tooltipY + 'px';
                             newTooltipEl.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-    
+            
                             // Add tooltip to document
                             document.body.appendChild(newTooltipEl);
                         }
@@ -827,14 +827,14 @@ updateMiscCosts(prefix = '') {
             },
             plugins: [centerTextPlugin]
         });
-    
+        
         // Add subtle shadow effect
         const canvas = document.getElementById(canvasId);
         canvas.style.filter = 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05))';
-    
+        
         return chart;
     }
-    
+        
     updateChart(chart, loanAmount, maxAmount) {
         const animation = {
             duration: 1000,
@@ -842,10 +842,10 @@ updateMiscCosts(prefix = '') {
             animateScale: true,
             animateRotate: true
         };
-    
+        
         // Calculate the shortfall (difference between max and current)
         const shortfall = maxAmount - loanAmount;
-    
+        
         // Update with actual monetary values
         chart.data.datasets[0].data = [shortfall, loanAmount];
         chart.options.rotation = 0;
@@ -854,7 +854,10 @@ updateMiscCosts(prefix = '') {
     
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
-        const formatCurrency = (number) => `SGD ${Math.floor(number).toLocaleString()}`;
+        const formatCurrency = (number) => {
+            // Revert to original SGD formatting (no color changes)
+            return `SGD ${Math.floor(number).toLocaleString()}`;
+        };
         const formatPercentage = (number) => {
             const roundedNum = Math.round(number * 100) / 100;
             if (roundedNum === 55 || roundedNum === 75 || number === 0.55 || number === 0.75) {
@@ -882,7 +885,7 @@ updateMiscCosts(prefix = '') {
         const minCashDownpayment = results.propertyValue * params.MIN_CASH_PERCENTAGE;
         const balanceDownpayment = results.propertyValue - (finalLoanAmount + minCashDownpayment);
         const balanceDownpaymentPercentage = 100 - (params.MIN_CASH_PERCENTAGE * 100) - actualLTV;
-    
+        
         // Calculate loan shortfall from theoretical maximum
         const loanShortfall = theoreticalMaxLoan - finalLoanAmount;
         
@@ -890,7 +893,7 @@ updateMiscCosts(prefix = '') {
         const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
         this.updateChart(chart, finalLoanAmount, theoreticalMaxLoan);
         
-        // Update basic result fields
+        // Update basic result fields (results-content remains unchanged with default SGD)
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
         
         // Update maxBankLoan to show actual achievable amount and LTV with blue percentage
@@ -902,11 +905,11 @@ updateMiscCosts(prefix = '') {
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         
-        // Update loan eligibility display without percentage
+        // Update loan eligibility display with default SGD (no color changes)
         document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 'Estimated Loan Eligibility:';
-        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(pureIncomeBasedEligibility);
+        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(pureIncomeBasedEligibility); // Revert to default SGD
         
-        // Update downpayment information
+        // Update downpayment information (results-content remains unchanged with default SGD)
         document.getElementById(`${prefix}minCashDownpaymentLabel`).innerHTML = 
             `Minimum Cash Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}</span>):`;
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
@@ -914,12 +917,12 @@ updateMiscCosts(prefix = '') {
         document.getElementById(`${prefix}balanceDownpaymentLabel`).innerHTML = 
             `Balance Cash/CPF Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(balanceDownpaymentPercentage)}</span>):`;
         document.getElementById(`${prefix}balanceDownpayment`).textContent = formatCurrency(balanceDownpayment);
-    
-        // Handle conditional results section
+        
+        // Handle conditional results section (unchanged, maintaining TLC square icon)
         const conditionalResults = document.getElementById(`${prefix}conditionalResults`);
         const fundsHeader = conditionalResults.querySelector('.funds-header h3');
         const fundsDetails = conditionalResults.querySelector('.funds-details');
-    
+        
         // Check if income-based eligibility meets or exceeds theoretical maximum
         const standardMaxPercentage = (params.MAX_LOAN_PERCENTAGE * 100);
         if (pureIncomeBasedEligibility >= theoreticalMaxLoan) {
@@ -947,8 +950,21 @@ updateMiscCosts(prefix = '') {
             document.getElementById(`${prefix}pledgeFund`).textContent = formatCurrency(results.pledgeFundData.pledgeFund);
             document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
         }
-    
-        // Add styles if not already present
+        
+        // Ensure no watermark or other unintended elements are reintroduced
+        const loanEligibilityElement = document.getElementById(`${prefix}loanEligibility`);
+        if (loanEligibilityElement) {
+            const existingWatermark = loanEligibilityElement.nextElementSibling?.classList.contains('watermark-text');
+            const existingIcon = loanEligibilityElement.parentNode.querySelector('.chart-icon');
+            if (existingWatermark) {
+                loanEligibilityElement.nextElementSibling.remove();
+            }
+            if (existingIcon) {
+                existingIcon.remove();
+            }
+        }
+        
+        // Add styles if not already present (updated to remove colored SGD)
         if (!document.querySelector('.calculator-styles')) {
             const style = document.createElement('style');
             style.className = 'calculator-styles';
@@ -1014,6 +1030,33 @@ updateMiscCosts(prefix = '') {
                     }
                     .shortfall-info {
                         font-size: 1rem;
+                    }
+                }
+                /* Remove colored SGD styles (revert to default) */
+                .colored-sgd {
+                    display: none; /* Disable any colored SGD styling to revert to default */
+                }
+                /* Style for fund icon in conditional-results (unchanged) */
+                .fund-icon {
+                    width: 16px; /* Adjust size to match your screenshot (small square, similar to diamond icon) */
+                    height: 16px;
+                    margin-right: 0.25rem; /* Maintain tightened gap as per your previous request */
+                    vertical-align: middle; /* Align icon with text */
+                }
+                /* Adjust fund-label to ensure proper spacing with icons (unchanged) */
+                .fund-label {
+                    font-size: 0.875rem;
+                    color: #6b7280;
+                    margin-bottom: 0.375rem;
+                    display: flex; /* Use flex to align icon and text */
+                    align-items: center; /* Center icon vertically with text */
+                }
+                /* Responsive adjustments for mobile (unchanged) */
+                @media screen and (max-width: 768px) {
+                    .fund-icon {
+                        width: 14px; /* Slightly smaller on mobile */
+                        height: 14px;
+                        margin-right: 0.2rem; /* Maintain tightened gap on mobile */
                     }
                 }
             `;

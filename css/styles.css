@@ -434,7 +434,7 @@ input.error + .error-message {
     font-size: 2.25rem;
     font-weight: 700;
     color: #1EA8E0;
-    margin: 0.75rem 0 1.5rem;
+    /* margin: 0.75rem 0 1.5rem; */
     line-height: 1.2;
     position: relative;
 }
@@ -517,7 +517,7 @@ input.error + .error-message {
     
     .loan-eligibility-center .result-item span {
         font-size: 1.875rem;
-        margin: 0.5rem 0 1.25rem;
+        /* margin: 0.5rem 0 1.25rem; */
     }
     
     .loan-eligibility-center .result-item span:before {
@@ -829,19 +829,29 @@ input:focus-visible,
     width: 240px;
 }
 
-/* Chart Labels Cleanup */
+/* Style for the TLC square icon */
+.chart-icon {
+    width: 16px; /* Adjust size to match your screenshot (small square, similar to diamond icon) */
+    height: 16px;
+    margin: 0 0.5rem; /* Space on both sides to center it between labels */
+    vertical-align: middle; /* Align icon with text */
+}
+
+/* Update chart-labels to use flex layout for proper spacing and centering of the icon */
 .chart-labels {
     margin-top: 0.75rem;
     width: 100%;
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    align-items: center; /* Align items vertically */
+    gap: 1.5rem; /* Maintain spacing between labels */
     padding: 0.625rem 0;
     border-top: 1px solid #e5e7eb;
     background: #ffffff;
     border-radius: 0 0 6px 6px;
 }
 
+/* Ensure chart-label maintains alignment with the icon */
 .chart-label {
     display: flex;
     align-items: center;
@@ -875,6 +885,17 @@ input:focus-visible,
     background-color: rgba(230, 80, 60, 0.75);
 }
 
+/* Responsive adjustments for mobile */
+@media screen and (max-width: 768px) {
+    .chart-icon {
+        width: 14px; /* Slightly smaller on mobile */
+        height: 14px;
+        margin: 0 0.4rem; /* Adjust spacing on mobile */
+    }
+    .chart-labels {
+        gap: 1rem; /* Reduce gap on mobile */
+    }
+}
 /* Conditional Results Refinements */
 .conditional-results {
     flex: 1;
@@ -1235,4 +1256,20 @@ input:focus-visible,
     padding: 1rem 0;
     text-align: center;
     margin-top: -40px;
+}
+
+/* Style for the TLC logo */
+.tlc-logo {
+    display: block;
+    margin: 1rem auto 1.5rem; /* Centers the logo and adds spacing below */
+    max-width: 150px; /* Adjust size as needed */
+    height: auto;
+}
+
+/* Responsive adjustments for mobile in loan-eligibility-center */
+@media screen and (max-width: 767px) {
+    .tlc-logo {
+        max-width: 120px; /* Smaller logo on mobile */
+        margin: 0.75rem auto 1rem;
+    }
 }
