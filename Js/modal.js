@@ -338,7 +338,7 @@ async handleSubmit(e) {
             
             // Use original dimensions
             const width = Math.max(resultsClone.scrollWidth, 800);
-            const height = Math.max(resultsClone.scrollHeight + 200, 4300);
+            const height = Math.max(resultsClone.scrollHeight + 200, 4500);
             
             captureContainer.style.width = `${width}px`;
             
