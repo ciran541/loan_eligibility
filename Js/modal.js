@@ -383,7 +383,7 @@ async handleSubmit(e) {
             };
 
             // Submit to Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxwqcNDvUq4RtyBMgxrg5nZkzwCTzuskNVnqC1LdnidN2uKW9wv8FUw2gKoSGTHwPY/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwDr3Wm789FnHXE8i9QCDMktMU4hEItlb_zryjCbpiZ8IDDmNVTI309V-kHaiUNp6Vn/exec';
             const form = new FormData();
             
             Object.keys(submissionData).forEach(key => {
