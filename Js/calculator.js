@@ -951,19 +951,6 @@ updateMiscCosts(prefix = '') {
             document.getElementById(`${prefix}showFund`).textContent = formatCurrency(results.pledgeFundData.showFund);
         }
         
-        // Ensure no watermark or other unintended elements are reintroduced
-        const loanEligibilityElement = document.getElementById(`${prefix}loanEligibility`);
-        if (loanEligibilityElement) {
-            const existingWatermark = loanEligibilityElement.nextElementSibling?.classList.contains('watermark-text');
-            const existingIcon = loanEligibilityElement.parentNode.querySelector('.chart-icon');
-            if (existingWatermark) {
-                loanEligibilityElement.nextElementSibling.remove();
-            }
-            if (existingIcon) {
-                existingIcon.remove();
-            }
-        }
-        
         // Add styles if not already present (updated to remove colored SGD)
         if (!document.querySelector('.calculator-styles')) {
             const style = document.createElement('style');
