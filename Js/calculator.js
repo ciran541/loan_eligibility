@@ -103,17 +103,18 @@ class LoanCalculator {
         }
     }
 
+    // Restrict foreigners for HDB and EC New Launch
     initializeHdbForeignerValidation() {
-        // Listen for property type changes
         document.querySelectorAll('input[name="propertyType"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
-                this.updateForeignerOptions(e.target.value === 'hdb');
+                const isRestricted = e.target.value === 'hdb' || e.target.value === 'ecNewLaunch';
+                this.updateForeignerOptions(isRestricted);
             });
         });
-    
-        // Initial state setup
-        const isHdb = document.querySelector('input[name="propertyType"][value="hdb"]').checked;
-        this.updateForeignerOptions(isHdb);
+
+        const selectedProperty = document.querySelector('input[name="propertyType"]:checked').value;
+        const isRestricted = selectedProperty === 'hdb' || selectedProperty === 'ecNewLaunch';
+        this.updateForeignerOptions(isRestricted);
     }
     
     updateForeignerOptions(isHdb) {
@@ -571,8 +572,15 @@ updateMiscCosts(prefix = '') {
 
     calculateLoanTenureWithParams(params) {
         const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
-        const weightedAge = this.calculateWeightedAverageAge();
-        const maxPropertyTenure = propertyType === 'hdb' ? params.TENURE_HDB : params.TENURE_PRIVATE;
+        const weightedAge = this.calculateWeightedAverageAge(); // Your existing method
+        let maxPropertyTenure;
+
+        if (propertyType === 'hdb') {
+            maxPropertyTenure = params.TENURE_HDB;
+        } else if (propertyType === 'private' || propertyType === 'ecNewLaunch') {
+            maxPropertyTenure = params.TENURE_PRIVATE; // Same as Private Property
+        }
+
         return Math.min(params.MAX_AGE_LIMIT - weightedAge, maxPropertyTenure);
     }
 
@@ -587,10 +595,12 @@ updateMiscCosts(prefix = '') {
             // Calculate TDSR and MSR available
             const tdsrAvailable = Math.max((totalIncome * this.TDSR_LIMIT) - totalCommitments, 0);
             const msrAvailable = totalIncome * this.MSR_LIMIT;
-            
+    
             // Determine monthly payment capacity
-            const monthlyPayment = (propertyType === 'hdb') ? 
-                Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
+            // For HDB and EC New Launch, use min of MSR and TDSR
+            // For Private Property, use TDSR only
+            const isHdbOrEc = propertyType === 'hdb' || propertyType === 'ecNewLaunch';
+            const monthlyPayment = isHdbOrEc ? Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
     
             // Calculate pure income-based loan eligibility using stress test rate
             const stressMonthlyRate = this.STRESS_TEST_RATE / 12;
@@ -605,31 +615,29 @@ updateMiscCosts(prefix = '') {
     
             // Calculate actual monthly installment using the final loan amount
             const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
-            const actualMonthlyPayment = finalLoanAmount > 0 ? 
-                Math.abs(finalLoanAmount * actualMonthlyRate * 
-                    Math.pow(1 + actualMonthlyRate, monthsTotal) / 
+            const actualMonthlyPayment = finalLoanAmount > 0 ?
+                Math.abs(finalLoanAmount * actualMonthlyRate *
+                    Math.pow(1 + actualMonthlyRate, monthsTotal) /
                     (Math.pow(1 + actualMonthlyRate, monthsTotal) - 1)) : 0;
     
             // Calculate loan percentage based on final loan amount vs property value
             const loanPercentage = (finalLoanAmount / propertyValue) * 100;
     
-            // Calculate pledge funds
+            // Calculate pledge funds (unchanged logic)
             let pledgeFundData = null;
             if (pureIncomeBasedEligibility < maxPossibleLoan) {
                 const shortfall = maxPossibleLoan - pureIncomeBasedEligibility;
                 if (shortfall > 1) {
                     let shortfallPayment;
                     if (pureIncomeBasedEligibility === 0) {
-                        // Calculate monthly payment needed for the full shortfall amount
-                        shortfallPayment = shortfall * 
-                            (stressMonthlyRate * Math.pow(1 + stressMonthlyRate, monthsTotal)) / 
+                        shortfallPayment = shortfall *
+                            (stressMonthlyRate * Math.pow(1 + stressMonthlyRate, monthsTotal)) /
                             (Math.pow(1 + stressMonthlyRate, monthsTotal) - 1);
                     } else {
-                        // Use existing ratio method when there is some income-based eligibility
                         shortfallPayment = monthlyPayment * (shortfall / pureIncomeBasedEligibility);
                     }
     
-                    const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55;
+                    const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55; // Use same divisor logic as HDB for EC New Launch
                     const pledgeFund = Math.max(0, (shortfallPayment * 48) / pledgeDivisor);
                     const showFund = Math.max(0, pledgeFund / 0.3);
     
@@ -648,7 +656,7 @@ updateMiscCosts(prefix = '') {
                 maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
                 pledgeFundData: pledgeFundData,
                 maxPossibleLoan: maxPossibleLoan,
-                finalLoanAmount: finalLoanAmount  // Added this to make it explicit
+                finalLoanAmount: finalLoanAmount
             };
         } catch (error) {
             console.error('Error calculating results:', error);
@@ -1051,14 +1059,21 @@ updateMiscCosts(prefix = '') {
         }
     }
     
+    // Update tenure display for EC New Launch (same as Private Property)
     updatePropertyTenure(propertyType) {
-        // Update both standard and alternative tenures
-        const propertyTenureElements = document.querySelectorAll('.property-tenure, .alt-property-tenure');
-        propertyTenureElements.forEach(element => {
-            if (element.classList.contains('alt-property-tenure')) {
-                element.textContent = propertyType === 'hdb' ? '30' : '35';
-            } else {
-                element.textContent = propertyType === 'hdb' ? '25' : '30';
+        document.querySelectorAll('.property-tenure').forEach(element => {
+            if (propertyType === 'hdb') {
+                element.textContent = '25';
+            } else if (propertyType === 'private' || propertyType === 'ecNewLaunch') {
+                element.textContent = '30';
+            }
+        });
+
+        document.querySelectorAll('.alt-property-tenure').forEach(element => {
+            if (propertyType === 'hdb') {
+                element.textContent = '30';
+            } else if (propertyType === 'private' || propertyType === 'ecNewLaunch') {
+                element.textContent = '35';
             }
         });
     }
