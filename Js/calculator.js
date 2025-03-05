@@ -597,8 +597,6 @@ updateMiscCosts(prefix = '') {
             const msrAvailable = totalIncome * this.MSR_LIMIT;
     
             // Determine monthly payment capacity
-            // For HDB and EC New Launch, use min of MSR and TDSR
-            // For Private Property, use TDSR only
             const isHdbOrEc = propertyType === 'hdb' || propertyType === 'ecNewLaunch';
             const monthlyPayment = isHdbOrEc ? Math.min(msrAvailable, tdsrAvailable) : tdsrAvailable;
     
@@ -623,7 +621,7 @@ updateMiscCosts(prefix = '') {
             // Calculate loan percentage based on final loan amount vs property value
             const loanPercentage = (finalLoanAmount / propertyValue) * 100;
     
-            // Calculate pledge funds (unchanged logic)
+            // Calculate pledge funds
             let pledgeFundData = null;
             if (pureIncomeBasedEligibility < maxPossibleLoan) {
                 const shortfall = maxPossibleLoan - pureIncomeBasedEligibility;
@@ -637,7 +635,8 @@ updateMiscCosts(prefix = '') {
                         shortfallPayment = monthlyPayment * (shortfall / pureIncomeBasedEligibility);
                     }
     
-                    const pledgeDivisor = propertyType === 'hdb' ? 0.30 : 0.55; // Use same divisor logic as HDB for EC New Launch
+                    // Use 0.3 for HDB and EC New Launch, 0.55 for Private Property
+                    const pledgeDivisor = (propertyType === 'hdb' || propertyType === 'ecNewLaunch') ? 0.30 : 0.55;
                     const pledgeFund = Math.max(0, (shortfallPayment * 48) / pledgeDivisor);
                     const showFund = Math.max(0, pledgeFund / 0.3);
     
