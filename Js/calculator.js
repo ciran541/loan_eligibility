@@ -73,6 +73,7 @@ class LoanCalculator {
         this.initializeEventListeners();
         this.calculateLoanEligibility();
         this.initializeNoaLabels();
+        this.initializeCommaFormatting();
     }
 
     // new method to initialize NOA labels
@@ -340,13 +341,21 @@ initializeFormState() {
             return true;
         }
 
-        const isValid = input.checkValidity();
-        input.classList.toggle('error', !isValid);
-        
-        const errorElement = document.getElementById(`${input.id}Error`);
-        if (errorElement) {
+        let isValid = true;
+        let errorMessage = '';
+
+        if (input.classList.contains('comma-input')) {
+            const value = this.parseNumber(input.value);
+            if (input.required && (isNaN(value) || input.value.trim() === '')) {
+                isValid = false;
+                errorMessage = 'This field is required';
+            } else if (!isNaN(value) && input.min && value < this.parseNumber(input.min)) {
+                isValid = false;
+                errorMessage = `Minimum value is ${input.min}`;
+            }
+        } else {
+            isValid = input.checkValidity();
             if (!isValid) {
-                let errorMessage = '';
                 if (input.validity.valueMissing) {
                     errorMessage = 'This field is required';
                 } else if (input.validity.rangeUnderflow) {
@@ -356,6 +365,14 @@ initializeFormState() {
                 } else {
                     errorMessage = input.validationMessage;
                 }
+            }
+        }
+
+        input.classList.toggle('error', !isValid);
+        
+        const errorElement = document.getElementById(`${input.id}Error`);
+        if (errorElement) {
+            if (!isValid) {
                 errorElement.textContent = errorMessage;
                 errorElement.style.display = 'block';
             } else {
@@ -400,8 +417,8 @@ initializeFormState() {
 
     calculateBorrowerIncome(borrower) {
         const isEmployed = document.querySelector(`input[name="${borrower}EmploymentStatus"][value="employed"]`)?.checked;
-        const basicSalary = parseFloat(document.getElementById(`${borrower}BasicSalary`)?.value || 0);
-        const noa = parseFloat(document.getElementById(`${borrower}NOA`)?.value || 0);
+        const basicSalary = this.parseNumber(document.getElementById(`${borrower}BasicSalary`)?.value) || 0;
+        const noa = this.parseNumber(document.getElementById(`${borrower}NOA`)?.value) || 0;
         
         if (isEmployed) {
             // For employed: Basic Salary + (NOA × 0.7 / 12)
@@ -511,7 +528,7 @@ calculateABSD(propertyValue) {
 // Modify the updateMiscCosts method to handle the special display with inline italic styling
 updateMiscCosts(prefix = '') {
     const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
-    const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+    const propertyValue = this.parseNumber(document.getElementById('propertyValue').value);
     
     // Calculate fees
     const legalFee = this.calculateLegalFee(propertyType);
@@ -527,7 +544,7 @@ updateMiscCosts(prefix = '') {
     // Special handling for valuation fee display with inline italic onwards text
     const valuationFeeElement = document.getElementById(`${prefix}valuationFee`);
     if (propertyValue >= 2000000) {
-        valuationFeeElement.innerHTML = `${formatCurrency(valuationFee)}&nbsp;<span style="font-size: 0.8em; color: #666666; font-style: italic; display: inline;">Onwards</span>`;
+        valuationFeeElement.innerHTML = `${formatCurrency(valuationFee)} <span style="font-size: 0.8em; color: #666666; font-style: italic; display: inline;">Onwards</span>`;
     } else {
         valuationFeeElement.textContent = formatCurrency(valuationFee);
     }
@@ -559,9 +576,9 @@ updateMiscCosts(prefix = '') {
     }
 
     calculateTotalCommitments() {
-        const borrower1Commitments = parseFloat(document.getElementById('borrower1Commitments').value || 0);
+        const borrower1Commitments = this.parseNumber(document.getElementById('borrower1Commitments').value) || 0;
         const isSingle = document.querySelector('input[name="borrowerCount"][value="single"]').checked;
-        const borrower2Commitments = isSingle ? 0 : parseFloat(document.getElementById('borrower2Commitments').value || 0);
+        const borrower2Commitments = isSingle ? 0 : this.parseNumber(document.getElementById('borrower2Commitments').value) || 0;
         return borrower1Commitments + borrower2Commitments;
     }
 
@@ -586,7 +603,7 @@ updateMiscCosts(prefix = '') {
 
     calculateResultsWithParams(params) {
         try {
-            const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+            const propertyValue = this.parseNumber(document.getElementById('propertyValue').value);
             const totalIncome = this.calculateTotalIncome();
             const totalCommitments = this.calculateTotalCommitments();
             const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
@@ -1085,6 +1102,35 @@ updateMiscCosts(prefix = '') {
 
     hideConditionalResults() {
         this.conditionalResults.classList.add('hidden');
+    }
+
+    initializeCommaFormatting() {
+        const commaInputs = document.querySelectorAll('.comma-input');
+        commaInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const cursorPosition = e.target.selectionStart;
+                const valueBefore = e.target.value;
+                const formattedValue = this.formatNumberWithCommas(e.target.value);
+                e.target.value = formattedValue;
+                
+                const commasBeforeCursor = (valueBefore.slice(0, cursorPosition).match(/,/g) || []).length;
+                const newCommasBeforeCursor = (formattedValue.slice(0, cursorPosition).match(/,/g) || []).length;
+                const cursorAdjustment = newCommasBeforeCursor - commasBeforeCursor;
+                e.target.setSelectionRange(cursorPosition + cursorAdjustment, cursorPosition + cursorAdjustment);
+                
+                this.validateInput(e.target);
+            });
+        });
+    }
+
+    formatNumberWithCommas(value) {
+        value = value.replace(/[^0-9]/g, '');
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    parseNumber(value) {
+        if (!value) return NaN;
+        return parseFloat(value.replace(/,/g, ''));
     }
 }
 

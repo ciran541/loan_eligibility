@@ -7,10 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Add these before your existing scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
 </head>
 <body>
     <div class="container">
@@ -27,9 +24,9 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="propertyValue" name="propertyValue" 
-                                       min="100000" required
-                                       placeholder="Enter property value" value="1000000">
+                                <input type="text" id="propertyValue" name="propertyValue" 
+                                       min="100,000" required
+                                       placeholder="E.g 1,000,000" class="comma-input" value="1,000,000">
                             </div>
                             <span class="error-message" id="propertyValueError"></span>
                         </div>
@@ -122,8 +119,8 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower1BasicSalary" name="borrower1BasicSalary" 
-                                       min="0" placeholder="Enter basic salary" value="3000">
+                                <input type="text" id="borrower1BasicSalary" name="borrower1BasicSalary" 
+                                       min="0" placeholder="E.g 3,000" class="comma-input" value="3,000">
                             </div>
                             <span class="error-message" id="borrower1BasicSalaryError"></span>
                         </div>
@@ -134,8 +131,8 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower1NOA" name="borrower1NOA" 
-                                       min="0" placeholder="Enter amount" value="10000">
+                                <input type="text" id="borrower1NOA" name="borrower1NOA" 
+                                       min="0" placeholder="E.g 10,000" class="comma-input" value="10,000">
                             </div>
                             <span class="error-message" id="borrower1NOAError"></span>
                         </div>
@@ -147,9 +144,9 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower1Commitments" name="borrower1Commitments" 
+                                <input type="text" id="borrower1Commitments" name="borrower1Commitments" 
                                        min="0" required
-                                       placeholder="Enter monthly commitments" value="500">
+                                       placeholder="E.g 500" class="comma-input" value="500">
                             </div>
                             <span class="error-message" id="borrower1CommitmentsError"></span>
                         </div>
@@ -212,8 +209,8 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower2BasicSalary" name="borrower2BasicSalary" 
-                                       min="0" placeholder="Enter basic salary" value="0">
+                                <input type="text" id="borrower2BasicSalary" name="borrower2BasicSalary" 
+                                       min="0" placeholder="E.g 0" class="comma-input" value="0">
                             </div>
                             <span class="error-message" id="borrower2BasicSalaryError"></span>
                         </div>
@@ -224,8 +221,8 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower2NOA" name="borrower2NOA" 
-                                       min="0" placeholder="Enter amount" value="0">
+                                <input type="text" id="borrower2NOA" name="borrower2NOA" 
+                                       min="0" placeholder="E.g 0" class="comma-input" value="0">
                             </div>
                             <span class="error-message" id="borrower2NOAError"></span>
                         </div>
@@ -237,14 +234,14 @@
                                 <div class="input-icon font-semibold text-primary">
                                     SGD
                                 </div>
-                                <input type="number" id="borrower2Commitments" name="borrower2Commitments" 
-                                       min="0" placeholder="Enter monthly commitments" value="0">
+                                <input type="text" id="borrower2Commitments" name="borrower2Commitments" 
+                                       min="0" placeholder="E.g 0" class="comma-input" value="0">
                             </div>
                             <span class="error-message" id="borrower2CommitmentsError"></span>
                         </div>
                     </section>
                 </form>
-            </div>
+            </div> 
 
             <!-- Results Section HTML -->
 <!-- Results Section -->
@@ -536,5 +533,9 @@
 </div>
     <script src="Js/calculator.js" defer></script>
     <script src="Js/modal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add these before your existing scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
