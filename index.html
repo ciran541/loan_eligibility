@@ -293,9 +293,12 @@
                 <span id="minCashDownpayment">-</span>
             </div>
             <div class="result-item">
-                <label>Monthly Instalment (Based on LTV):</label>
+                <label>Monthly Instalment (Based on LTV):</label>
                 <span id="monthlyInstallment">-</span>
-                <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+                <div class="reference-rate-input">
+                    <div class="fund-label">Reference Rate: </div>
+                    <input type="number" id="referenceRate" min="0" max="10" step="0.1" value="2.5" style="width: 60px; text-align: center; margin: 0 4px;">% p.a
+                </div>
             </div>
             <div class="result-item">
                 <label id="balanceDownpaymentLabel">Balance Cash/CPF Downpayment (0.00%):</label>
@@ -408,9 +411,12 @@
                 <span id="alt-minCashDownpayment">-</span>
             </div>
             <div class="result-item">
-                <label>Monthly Instalment (Based on LTV):</label>
+                <label>Monthly Instalment (Based on LTV):</label>
                 <span id="alt-monthlyInstallment">-</span>
-                <span class="reference-rate">Reference Rate: 2.5% p.a</span>
+                <div class="reference-rate-input">
+                    <div class="fund-label">Reference Rate: </div>
+                    <input type="number" id="alt-referenceRate" min="0" max="10" step="0.1" value="2.5" style="width: 60px; text-align: center; margin: 0 4px;">% p.a
+                </div>
             </div>
             <div class="result-item">
                 <label id="alt-balanceDownpaymentLabel">Balance Cash/CPF Downpayment (0.00%):</label>

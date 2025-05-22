@@ -1273,3 +1273,33 @@ input:focus-visible,
         margin: 0.75rem auto 1rem;
     }
 }
+
+.reference-rate-input {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.reference-rate-input input {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.875rem;
+    color: #1EA8E0;
+    font-weight: 500;
+}
+
+.reference-rate-input input:focus {
+    outline: none;
+    border-color: #1EA8E0;
+    box-shadow: 0 0 0 2px rgba(30, 168, 224, 0.1);
+}
+
+.reference-rate-input input::-webkit-inner-spin-button,
+.reference-rate-input input::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 20px;
+}

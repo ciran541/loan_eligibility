@@ -25,12 +25,11 @@ class LoanCalculator {
         };
 
         // Initialize chart instances
-    this.standardChart = this.initializeChart('standardLoanChart');
-    this.alternativeChart = this.initializeChart('alternativeLoanChart');
+        this.standardChart = this.initializeChart('standardLoanChart');
+        this.alternativeChart = this.initializeChart('alternativeLoanChart');
 
         // Common constants for calculations
         this.STRESS_TEST_RATE = 0.040; // 4.2% annual interest rate
-        this.MONTHLY_INSTALLMENT_RATE = 0.025; // 2.5% annual interest rate for monthly installment
         this.MSR_LIMIT = 0.30; // 30% for MSR
         this.TDSR_LIMIT = 0.55; // 55% for TDSR
         this.NOA_FACTOR = 0.7; // 70% of NOA income considered
@@ -181,6 +180,23 @@ initializeFormState() {
 
         // Initialize property tenure text
         this.updatePropertyTenure(document.querySelector('input[name="propertyType"]:checked').value);
+
+        // Reference Rate Changes
+        const referenceRateInputs = document.querySelectorAll('#referenceRate, #alt-referenceRate');
+        referenceRateInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                // Sync both inputs
+                const value = input.value;
+                referenceRateInputs.forEach(otherInput => {
+                    if (otherInput !== input) {
+                        otherInput.value = value;
+                    }
+                });
+                if (this.validateForm()) {
+                    this.calculateLoanEligibility();
+                }
+            });
+        });
 
         // Borrower Count Changes
         document.querySelectorAll('input[name="borrowerCount"]').forEach(radio => {
@@ -608,6 +624,7 @@ updateMiscCosts(prefix = '') {
             const totalCommitments = this.calculateTotalCommitments();
             const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
             const tenure = this.calculateLoanTenureWithParams(params);
+            const referenceRate = this.parseNumber(document.getElementById('referenceRate').value) / 100; // Convert percentage to decimal
     
             // Calculate TDSR and MSR available
             const tdsrAvailable = Math.max((totalIncome * this.TDSR_LIMIT) - totalCommitments, 0);
@@ -628,8 +645,8 @@ updateMiscCosts(prefix = '') {
             // Final loan amount is the lower of income-based eligibility and max possible loan
             const finalLoanAmount = Math.min(pureIncomeBasedEligibility, maxPossibleLoan);
     
-            // Calculate actual monthly installment using the final loan amount
-            const actualMonthlyRate = this.MONTHLY_INSTALLMENT_RATE / 12;
+            // Calculate actual monthly installment using the final loan amount and dynamic reference rate
+            const actualMonthlyRate = referenceRate / 12;
             const actualMonthlyPayment = finalLoanAmount > 0 ?
                 Math.abs(finalLoanAmount * actualMonthlyRate *
                     Math.pow(1 + actualMonthlyRate, monthsTotal) /
@@ -672,7 +689,8 @@ updateMiscCosts(prefix = '') {
                 maxLoanPercentage: params.MAX_LOAN_PERCENTAGE,
                 pledgeFundData: pledgeFundData,
                 maxPossibleLoan: maxPossibleLoan,
-                finalLoanAmount: finalLoanAmount
+                finalLoanAmount: finalLoanAmount,
+                referenceRate: referenceRate
             };
         } catch (error) {
             console.error('Error calculating results:', error);
@@ -879,7 +897,6 @@ updateMiscCosts(prefix = '') {
     updateResults(results, type) {
         const prefix = type === 'standard' ? '' : 'alt-';
         const formatCurrency = (number) => {
-            // Revert to original SGD formatting (no color changes)
             return `SGD ${Math.floor(number).toLocaleString()}`;
         };
         const formatPercentage = (number) => {
@@ -917,7 +934,7 @@ updateMiscCosts(prefix = '') {
         const chart = type === 'standard' ? this.standardChart : this.alternativeChart;
         this.updateChart(chart, finalLoanAmount, theoreticalMaxLoan);
         
-        // Update basic result fields (results-content remains unchanged with default SGD)
+        // Update basic result fields
         document.getElementById(`${prefix}targetPrice`).textContent = formatCurrency(results.propertyValue);
         
         // Update maxBankLoan to show actual achievable amount and LTV with blue percentage
@@ -929,11 +946,17 @@ updateMiscCosts(prefix = '') {
         document.getElementById(`${prefix}loanTenure`).textContent = `${results.loanTenure} years`;
         document.getElementById(`${prefix}monthlyInstallment`).textContent = formatCurrency(results.monthlyInstallment);
         
-        // Update loan eligibility display with default SGD (no color changes)
-        document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 'Estimated Loan Eligibility:';
-        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(pureIncomeBasedEligibility); // Revert to default SGD
+        // Update reference rate display
+        const referenceRateElement = document.querySelector(`#${prefix}monthlyInstallment`).nextElementSibling;
+        if (referenceRateElement && referenceRateElement.classList.contains('reference-rate')) {
+            referenceRateElement.textContent = `Reference Rate: ${(results.referenceRate * 100).toFixed(1)}% p.a`;
+        }
         
-        // Update downpayment information (results-content remains unchanged with default SGD)
+        // Update loan eligibility display
+        document.getElementById(`${prefix}loanEligibilityLabel`).textContent = 'Estimated Loan Eligibility:';
+        document.getElementById(`${prefix}loanEligibility`).textContent = formatCurrency(pureIncomeBasedEligibility);
+        
+        // Update downpayment information
         document.getElementById(`${prefix}minCashDownpaymentLabel`).innerHTML = 
             `Minimum Cash Downpayment (<span style="color: #1EA8E0; display: inline; font-size: inherit; font-weight: inherit;">${formatPercentage(params.MIN_CASH_PERCENTAGE * 100)}</span>):`;
         document.getElementById(`${prefix}minCashDownpayment`).textContent = formatCurrency(minCashDownpayment);
