@@ -329,7 +329,7 @@ async handleSubmit(e) {
             <div class="pdf-footer">
                 <hr>
                 <p>This report was generated on ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
-                <p>For any questions, please contact our mortgage specialists at <a href="mailto:info@theloanconnection.com">enquiry@theloanconnection.com.sg</a></p>
+                <p>For any questions, please contact our mortgage specialists at <a href="mailto:hello@theloanconnection.com.sg">hello@theloanconnection.com.sg</a></p>
             </div>
         `;
             
@@ -383,7 +383,7 @@ async handleSubmit(e) {
             };
 
             // Submit to Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwDr3Wm789FnHXE8i9QCDMktMU4hEItlb_zryjCbpiZ8IDDmNVTI309V-kHaiUNp6Vn/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxNfAGIztkVqzp9kWiW1y5ctsFeDdqFnHc7wjNZd9Rvhe7NiuPtEDB2TxWxUduO4guy/exec';
             const form = new FormData();
             
             Object.keys(submissionData).forEach(key => {
