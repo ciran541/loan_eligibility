@@ -60,7 +60,7 @@ class LoanCalculator {
 
         // new property for label texts
         this.LABEL_TEXTS = {
-            employed: 'Annual Bonus',
+            employed: 'Annual Bonus / Annual Variable Income',
             selfEmployed: 'Annual Income'
         };
 
