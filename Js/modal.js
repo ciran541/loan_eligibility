@@ -10,11 +10,17 @@ class IpaModal {
         this.originalButtonText = this.submitBtn ? this.submitBtn.innerHTML : 'Submit'; // Store original text
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
+        this.trafficSource = this.getTrafficSource();
         
         // Ensure modal is hidden by default
         this.modal.style.display = 'none';
         
         this.initializeEvents();
+    }
+
+    getTrafficSource() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('source') || 'direct'; // Returns 'direct' if no source parameter
     }
 
     initializeEvents() {
@@ -379,6 +385,7 @@ async handleSubmit(e) {
                 email: formData.get('emailAddress'),
                 mobile: formData.get('mobileNumber'),
                 pdfData: pdfBase64,
+                source: this.trafficSource,
                 ...loanDetails
             };
 
