@@ -19,8 +19,36 @@ class IpaModal {
     }
 
     getTrafficSource() {
+        // First check URL parameters in the iframe
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('source') || 'direct'; // Returns 'direct' if no source parameter
+        const source = urlParams.get('source');
+        if (source) return source;
+
+        // If we're in an iframe, try to get source from parent
+        if (this.isInIframe) {
+            try {
+                const parentUrl = document.referrer;
+                const parentParams = new URLSearchParams(new URL(parentUrl).search);
+                const parentSource = parentParams.get('source');
+                if (parentSource) return parentSource;
+            } catch (e) {
+                console.log('Unable to access parent URL parameters');
+            }
+        }
+
+        // If no source found, check the referrer domain
+        if (document.referrer) {
+            try {
+                const referrerDomain = new URL(document.referrer).hostname;
+                if (referrerDomain.includes('theloanconnection.com.sg')) {
+                    return 'website';
+                }
+            } catch (e) {
+                console.log('Unable to parse referrer');
+            }
+        }
+
+        return 'direct';
     }
 
     initializeEvents() {
