@@ -6,9 +6,6 @@ class LoanCalculator {
         this.borrower2Section = document.getElementById('borrower2Details');
         this.conditionalResults = document.getElementById('conditionalResults');
         
-        // Store traffic source when calculator loads
-        this.storeTrafficSource();
-        
         // Standard parameters (75% LTV)
         this.STANDARD_PARAMS = {
             MAX_LOAN_PERCENTAGE: 0.75,
@@ -36,20 +33,6 @@ class LoanCalculator {
         this.MSR_LIMIT = 0.30; // 30% for MSR
         this.TDSR_LIMIT = 0.55; // 55% for TDSR
         this.NOA_FACTOR = 0.7; // 70% of NOA income considered
-
-        // Method to store traffic source
-        this.storeTrafficSource = function() {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const source = urlParams.get('source');
-                if (source) {
-                    localStorage.setItem('trafficSource', source);
-                    console.log('Traffic source stored:', source);
-                }
-            } catch (e) {
-                console.error('Error storing traffic source:', e);
-            }
-        };
 
         // Store field values for each borrower and employment status
         this.savedFields = {

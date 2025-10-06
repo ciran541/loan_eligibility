@@ -11,7 +11,6 @@ class IpaModal {
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
         this.trafficSource = this.getTrafficSource();
-        console.log('Traffic Source:', this.trafficSource, 'Is in iframe:', this.isInIframe);
         
         // Ensure modal is hidden by default
         this.modal.style.display = 'none';
@@ -20,20 +19,8 @@ class IpaModal {
     }
 
     getTrafficSource() {
-        try {
-            // Try to get source from localStorage first
-            const storedSource = localStorage.getItem('trafficSource');
-            if (storedSource) {
-                return storedSource;
-            }
-            
-            // If no stored source, try URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('source') || 'direct';
-        } catch (e) {
-            console.error('Error getting traffic source:', e);
-            return 'direct';
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('source') || 'direct'; // Returns 'direct' if no source parameter
     }
 
     initializeEvents() {
