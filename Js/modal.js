@@ -11,10 +11,10 @@ class IpaModal {
         this.selectedStructure = '';
         this.isInIframe = window !== window.parent;
         this.trafficSource = this.getTrafficSource();
-        
+
         // Ensure modal is hidden by default
         this.modal.style.display = 'none';
-        
+
         this.initializeEvents();
     }
 
@@ -57,7 +57,7 @@ class IpaModal {
             this.selectedStructure = 'Structure 1 (75% LTV)';
             this.openModal();
         });
-        
+
         this.alternativeIpaButton.addEventListener('click', () => {
             this.selectedStructure = 'Structure 2 (55% LTV)';
             this.openModal();
@@ -68,13 +68,13 @@ class IpaModal {
             this.selectedStructure = 'Structure 1 (75% LTV)';
             this.openModal();
         });
-        
+
         // Close modal events
         this.closeBtn.addEventListener('click', () => this.closeModal());
         window.addEventListener('click', (e) => {
             if (e.target === this.modal) this.closeModal();
         });
-        
+
         // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
 
@@ -93,14 +93,14 @@ class IpaModal {
 
     adjustModalPosition() {
         const modalContent = this.modal.querySelector('.ipa-modal-content');
-        
+
         if (window.innerWidth <= 768) { // Mobile view
             // Apply mobile styles only when modal is actually open
             if (this.modal.style.display === 'block') {
                 this.modal.style.top = '0';
                 this.modal.style.height = '100%';
                 this.modal.style.overflow = 'auto';
-                
+
                 if (modalContent) {
                     modalContent.style.marginTop = '20px';
                     modalContent.style.marginBottom = '20px';
@@ -112,7 +112,7 @@ class IpaModal {
             this.modal.style.top = '';
             this.modal.style.height = '';
             this.modal.style.overflow = '';
-            
+
             if (modalContent) {
                 modalContent.style.marginTop = '';
                 modalContent.style.marginBottom = '';
@@ -127,11 +127,11 @@ class IpaModal {
             if (headerText) {
                 headerText.textContent = this.selectedStructure;
             }
-            
+
             window.parent.postMessage({
                 type: 'showModal'
             }, '*');
-            
+
             // Set display before adjusting position
             this.modal.style.display = 'block';
             // Only adjust position after setting display
@@ -147,7 +147,7 @@ class IpaModal {
                 type: 'closeModal'
             }, '*');
         }
-        
+
         // Reset all modal styles when closing
         this.modal.style.display = 'none';
         const modalContent = this.modal.querySelector('.ipa-modal-content');
@@ -156,7 +156,7 @@ class IpaModal {
             modalContent.style.marginBottom = '';
             modalContent.style.maxHeight = '';
         }
-        
+
         this.form.reset();
         this.clearErrors();
     }
@@ -213,7 +213,7 @@ class IpaModal {
     getLoanDetails() {
         // Get prefix based on structure
         const prefix = this.selectedStructure.includes('75%') ? '' : 'alt-';
-        
+
         // Get basic loan details
         const basicDetails = {
             structure: this.selectedStructure,
@@ -227,7 +227,7 @@ class IpaModal {
             propertyType: document.querySelector('input[name="propertyType"]:checked').value,
             borrowerCount: document.querySelector('input[name="borrowerCount"]:checked').value,
         };
-    
+
         // Get Borrower 1 details
         const borrower1Details = {
             borrower1_residency: document.querySelector('input[name="borrower1ResidencyStatus"]:checked').value,
@@ -237,7 +237,7 @@ class IpaModal {
             borrower1_bonus: document.getElementById('borrower1NOA').value,
             borrower1_commitments: document.getElementById('borrower1Commitments').value
         };
-    
+
         // If joint application, get Borrower 2 details
         let borrower2Details = {};
         if (basicDetails.borrowerCount === 'joint') {
@@ -250,7 +250,7 @@ class IpaModal {
                 borrower2_commitments: document.getElementById('borrower2Commitments').value
             };
         }
-    
+
         return {
             ...basicDetails,
             ...borrower1Details,
@@ -268,7 +268,7 @@ class IpaModal {
                     type: type,
                     title: title,
                     message: message,
-                    icon: type === 'success' ? 
+                    icon: type === 'success' ?
                         `<svg viewBox="0 0 24 24" width="24" height="24">
                             <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
                         </svg>` :
@@ -280,37 +280,37 @@ class IpaModal {
         }
     }
 
-showLoading() {
-    if (this.submitBtn) {
-        this.submitBtn.disabled = true;
-        this.submitBtn.innerHTML = 'Almost there! Preparing your report...';
+    showLoading() {
+        if (this.submitBtn) {
+            this.submitBtn.disabled = true;
+            this.submitBtn.innerHTML = 'Almost there! Preparing your report...';
+        }
     }
-}
 
-hideLoading() {
-    if (this.submitBtn) {
-        this.submitBtn.disabled = false;
-        this.submitBtn.innerHTML = this.originalButtonText;
+    hideLoading() {
+        if (this.submitBtn) {
+            this.submitBtn.disabled = false;
+            this.submitBtn.innerHTML = this.originalButtonText;
+        }
     }
-}
 
 
-async handleSubmit(e) {
-    e.preventDefault();
-    if (this.validateForm()) {
-        this.showLoading();
+    async handleSubmit(e) {
+        e.preventDefault();
+        if (this.validateForm()) {
+            this.showLoading();
 
-        try {
-            const formData = new FormData(this.form);
-            const loanDetails = this.getLoanDetails();
-            const userName = formData.get('name');
-            const userEmail = formData.get('emailAddress');
-            
-            // Create temporary container
-            const captureContainer = document.createElement('div');
-            captureContainer.className = 'pdf-capture-container';
-            
-            captureContainer.innerHTML = `
+            try {
+                const formData = new FormData(this.form);
+                const loanDetails = this.getLoanDetails();
+                const userName = formData.get('name');
+                const userEmail = formData.get('emailAddress');
+
+                // Create temporary container
+                const captureContainer = document.createElement('div');
+                captureContainer.className = 'pdf-capture-container';
+
+                captureContainer.innerHTML = `
             <div class="pdf-header">
                 <div class="company-info">
                     <h1>The Loan Connection</h1>
@@ -323,138 +323,138 @@ async handleSubmit(e) {
                 </div>
             </div>
         `;
-            // Clone results section
-            const resultsSection = document.querySelector('.results-wrapper');
-            const resultsClone = resultsSection.cloneNode(true);
+                // Clone results section
+                const resultsSection = document.querySelector('.results-wrapper');
+                const resultsClone = resultsSection.cloneNode(true);
 
-            // Function to capture chart as image
-            const captureChart = (chartId) => {
-                const originalChart = document.getElementById(chartId);
-                if (originalChart) {
-                    const chartInstance = Chart.getChart(originalChart);
-                    if (chartInstance) {
-                        const chartImage = chartInstance.toBase64Image();
-                        const clonedCanvas = resultsClone.querySelector(`#${chartId}`);
-                        if (clonedCanvas) {
-                            const img = document.createElement('img');
-                            img.src = chartImage;
-                            img.style.width = '100%';
-                            img.style.height = 'auto';
-                            clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
+                // Function to capture chart as image
+                const captureChart = (chartId) => {
+                    const originalChart = document.getElementById(chartId);
+                    if (originalChart) {
+                        const chartInstance = Chart.getChart(originalChart);
+                        if (chartInstance) {
+                            const chartImage = chartInstance.toBase64Image();
+                            const clonedCanvas = resultsClone.querySelector(`#${chartId}`);
+                            if (clonedCanvas) {
+                                const img = document.createElement('img');
+                                img.src = chartImage;
+                                img.style.width = '100%';
+                                img.style.height = 'auto';
+                                clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            // Capture both charts
-            captureChart('standardLoanChart');
-            captureChart('alternativeLoanChart');
+                // Capture both charts
+                captureChart('standardLoanChart');
+                captureChart('alternativeLoanChart');
 
-            // Make all elements visible
-            resultsClone.querySelectorAll('*').forEach(el => {
-                if (window.getComputedStyle(el).display === 'none') {
-                    el.style.display = 'block';
-                }
-            });
-            
-            captureContainer.appendChild(resultsClone);
-            
-            captureContainer.innerHTML += `
+                // Make all elements visible
+                resultsClone.querySelectorAll('*').forEach(el => {
+                    if (window.getComputedStyle(el).display === 'none') {
+                        el.style.display = 'block';
+                    }
+                });
+
+                captureContainer.appendChild(resultsClone);
+
+                captureContainer.innerHTML += `
             <div class="pdf-footer">
                 <hr>
                 <p>This report was generated on ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
                 <p>For any questions, please contact our mortgage specialists at <a href="mailto:hello@theloanconnection.com.sg">hello@theloanconnection.com.sg</a></p>
             </div>
         `;
-            
-            // Add to document for capture
-            document.body.appendChild(captureContainer);
-            
-            // Use original dimensions
-            const width = Math.max(resultsClone.scrollWidth, 800);
-            const height = Math.max(resultsClone.scrollHeight + 200, 4500);
-            
-            captureContainer.style.width = `${width}px`;
-            
-            // Capture content
-            const canvas = await html2canvas(captureContainer, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-                width: width,
-                height: height,
-                windowWidth: width,
-                windowHeight: height
-            });
-            
-            // Remove temporary container
-            document.body.removeChild(captureContainer);
-            
-            // Create PDF
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: width > height ? 'landscape' : 'portrait',
-                unit: 'px',
-                format: [width, height]
-            });
-            
-            // Add captured content to PDF
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            pdf.addImage(imgData, 'JPEG', 0, 0, width, height, '', 'FAST');
-            
-            // Get base64 for submission
-            const pdfBase64 = pdf.output('datauristring').split(',')[1];
-            
-            // Prepare submission data
-            const submissionData = {
-                timestamp: new Date().toISOString(),
-                name: formData.get('name'),
-                email: formData.get('emailAddress'),
-                mobile: formData.get('mobileNumber'),
-                pdfData: pdfBase64,
-                source: this.trafficSource,
-                ...loanDetails
-            };
 
-            // Submit to Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwmk392IM5mH_lWQLf01Nb0vT3r3OoTjM3HtL-QINn3F7_X7RpHlIiVFrhBo-7CdYBh/exec';
-            const form = new FormData();
-            
-            Object.keys(submissionData).forEach(key => {
-                form.append(key, submissionData[key]);
-            });
+                // Add to document for capture
+                document.body.appendChild(captureContainer);
 
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: form
-            });
+                // Use original dimensions
+                const width = Math.max(resultsClone.scrollWidth, 800);
+                const height = Math.max(resultsClone.scrollHeight + 200, 4500);
 
-            this.hideLoading();
-            this.closeModal();
-            
-            this.showNotification(
-                'success', 
-                'Success!', 
-                'Thank you! Your report is being processed and will arrive in your email shortly.'
-            );
-            
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            this.hideLoading();
-            
-            this.showNotification(
-                'error',
-                'Error',
-                'Sorry, there was an error submitting your form. Please try again.'
-            );
+                captureContainer.style.width = `${width}px`;
+
+                // Capture content
+                const canvas = await html2canvas(captureContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    width: width,
+                    height: height,
+                    windowWidth: width,
+                    windowHeight: height
+                });
+
+                // Remove temporary container
+                document.body.removeChild(captureContainer);
+
+                // Create PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: width > height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [width, height]
+                });
+
+                // Add captured content to PDF
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                pdf.addImage(imgData, 'JPEG', 0, 0, width, height, '', 'FAST');
+
+                // Get base64 for submission
+                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+                // Prepare submission data
+                const submissionData = {
+                    timestamp: new Date().toISOString(),
+                    name: formData.get('name'),
+                    email: formData.get('emailAddress'),
+                    mobile: formData.get('mobileNumber'),
+                    pdfData: pdfBase64,
+                    source: this.trafficSource,
+                    ...loanDetails
+                };
+
+                // Submit to Google Apps Script
+                const scriptURL = 'https://script.google.com/macros/s/AKfycby3BmGUxv4mA6A5hYBRMw4EBU3KCmFE7Vy0i4Wgqm3Ee8UlMgpJpO6FoIPqiuX_Vfz7/exec';
+                const form = new FormData();
+
+                Object.keys(submissionData).forEach(key => {
+                    form.append(key, submissionData[key]);
+                });
+
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: form
+                });
+
+                this.hideLoading();
+                this.closeModal();
+
+                this.showNotification(
+                    'success',
+                    'Success!',
+                    'Thank you! Your report is being processed and will arrive in your email shortly.'
+                );
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                this.hideLoading();
+
+                this.showNotification(
+                    'error',
+                    'Error',
+                    'Sorry, there was an error submitting your form. Please try again.'
+                );
+            }
         }
     }
-}
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-new IpaModal();
+    new IpaModal();
 });
